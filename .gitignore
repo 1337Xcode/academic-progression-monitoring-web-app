@@ -1,4 +1,8 @@
+.history/
 node_modules/
 .env
 *.log
 *.txt
+misc/
+*.json
+structure.txt

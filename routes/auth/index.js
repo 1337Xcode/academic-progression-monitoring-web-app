@@ -1,16 +1,16 @@
 const express = require('express');
 const router = express.Router();
+const AuthController = require('../../controllers/AuthController');
+const { isAuthenticated } = require('../../middlewares/authMiddleware');
 
-// Shows the login page to the user when they visit /auth/login
 router.get('/login', (req, res) => {
-    res.render('auth/login'); // Render the login view
+    res.render('auth/login');
 });
-// # Note: redirect user to respective dashboard after login based on user role
 
-// Shows the registration page to the user when they visit /auth/register
-router.get('/register', (req, res) => {
-    res.render('auth/register'); // Render the registration view
+router.post('/login', AuthController.login);
+
+router.get('/profile', isAuthenticated, (req, res) => {
+    res.render('auth/profile');
 });
-// # Note: Redirect user back to login page after registration
 
 module.exports = router;

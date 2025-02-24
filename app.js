@@ -10,7 +10,7 @@ dotenv.config(); // Load environment variables from .env file
 const app = express();
 
 // Middleware setup
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true })); // Ensure extended is true
 app.use(bodyParser.json());
 app.use(session({
     secret: process.env.SESSION_SECRET, // Use secret key from .env file
@@ -45,8 +45,5 @@ const errorMiddleware = require('./middlewares/errorMiddleware'); // Import erro
 app.use(errorMiddleware.notFound); // Handle 404 errors
 app.use(errorMiddleware); // Handle other errors (e.g. 500)
 
-// Start app
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+// Export app
+module.exports = app;
