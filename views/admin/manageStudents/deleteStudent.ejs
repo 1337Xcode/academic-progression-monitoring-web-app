@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete Student</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Delete Student</h1>
+            <form action="/admin/students/delete" method="post">
+                <div class="field">
+                    <label class="label" for="studentId">Student ID:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="studentId" name="studentId" required>
+                    </div>
+                </div>
+                <div class="control">
+                    <button class="button is-danger" type="submit">Delete Student</button>
+                </div>
+            </form>
+        </div>
+    </section>
+</body>
+</html>

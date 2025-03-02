@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Modules</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Manage Modules</h1>
+            <% const page = 'manageModules'; %>
+            <%- include('../../partials/navbar', { page: page }) %>
+            <table class="table is-fullwidth is-striped">
+                <thead>
+                    <tr>
+                        <th>Module ID</th>
+                        <th>Name</th>
+                        <th>Code</th>
+                        <th>Credit Value</th>
+                        <th>Pathway Code</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% modules.forEach(module => { %>
+                        <tr>
+                            <td><%= module.module_id %></td>
+                            <td><%= module.module_title %></td>
+                            <td><%= module.subj_code %></td>
+                            <td><%= module.credit_value %></td>
+                            <td><%= module.pathway_code %></td>
+                            <td>
+                                <a class="button is-info" href="/admin/manageModules/updateModule?moduleId=<%= module.module_id %>">Update</a>
+                                <form action="/admin/modules/delete" method="post" style="display:inline;">
+                                    <input type="hidden" name="moduleId" value="<%= module.module_id %>">
+                                    <button class="button is-danger" type="submit">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+            <%- include('../../partials/page', { totalPages, currentPage }) %>
+            <div class="buttons">
+                <a class="button is-primary" href="/admin/manageModules/addModule">Add Module</a>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

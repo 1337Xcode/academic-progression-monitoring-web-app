@@ -1,42 +1,37 @@
+const { User } = require('../models'); // Import User model
 const bcrypt = require('bcrypt');
-const db = require('../config/dbConfig');
+const jwt = require('jsonwebtoken'); 
 
-async function login(req, res) {
+exports.login = async (req, res) => {
     const { username, password } = req.body;
-    console.log('Login attempt:', username); // Add logging
-    const connection = await db.connect();
-
     try {
-        const [rows] = await connection.execute('SELECT * FROM users WHERE username = ?', [username]);
-        if (rows.length === 0) {
-            console.log('Invalid username'); // Add logging
-            return res.status(401).send('Invalid username or password');
-        }
+        const user = await User.findOne({ where: { username } }); // Find user by username
+        if (user && bcrypt.compareSync(password, user.password_hash)) { // Compare password
+            // Create a JWT token
+            const token = jwt.sign({ userId: user.user_id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' }); // 
+            req.session.token = token;
+            req.session.userId = user.user_id; // Set user ID in session
+            req.session.role = user.role; // Set user role in session
 
-        const user = rows[0];
-        const passwordMatch = await bcrypt.compare(password, user.password_hash);
-
-        if (!passwordMatch) {
-            console.log('Invalid password'); // Add logging
-            return res.status(401).send('Invalid username or password');
-        }
-
-        req.session.userId = user.user_id;
-        req.session.role = user.role;
-
-        if (user.role === 'ADMIN') {
-            res.redirect('/admin/dashboard');
-        } else if (user.role === 'STUDENT') {
-            res.redirect('/student/profile');
+            // Redirect user based on role
+            if (user.role === 'ADMIN') {
+                res.redirect('/admin/dashboard');
+            } else if (user.role === 'STUDENT') {
+                res.redirect('/student/profile');
+            } else {
+                res.status(403).send('Invalid role');
+            }
         } else {
-            res.status(401).send('Invalid user role');
+            res.status(401).send('Invalid username or password');
         }
     } catch (error) {
-        console.error('Login error:', error);
-        res.status(500).send('Internal server error');
-    } finally {
-        connection.end();
+        console.error(error);
+        res.status(500).send('Error logging in');
     }
-}
+};
 
-module.exports = { login };
+
+exports.logout = (req, res) => {
+    req.session.destroy();
+    res.redirect('/auth/login');
+};

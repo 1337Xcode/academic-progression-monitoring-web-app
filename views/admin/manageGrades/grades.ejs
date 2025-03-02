@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Grades</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Manage Grades</h1>
+            <% const page = 'manageGrades'; %>
+            <%- include('../../partials/navbar', { page: page }) %>
+            <table class="table is-fullwidth is-striped">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Module</th>
+                        <th>First Grade</th>
+                        <th>Grade Result</th>
+                        <th>Resit Grade</th>
+                        <th>Resit Result</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% enrollments.forEach(enrollment => { %>
+                        <tr>
+                            <td><%= enrollment.Student.sId %></td>
+                            <td><%= enrollment.Student.first_name %></td>
+                            <td><%= enrollment.Student.last_name %></td>
+                            <td><%= enrollment.Module.module_title %></td>
+                            <td><%= enrollment.first_grade %></td>
+                            <td><%= enrollment.grade_result %></td>
+                            <td><%= enrollment.resit_grade %></td>
+                            <td><%= enrollment.resit_result %></td>
+                            <td>
+                                <form action="/admin/grades/update" method="post" style="display:inline;">
+                                    <input type="hidden" name="enrollmentId" value="<%= enrollment.enrollment_id %>">
+                                    <input class="input" type="number" name="firstGrade" value="<%= enrollment.first_grade %>" required>
+                                    <input class="input" type="text" name="gradeResult" value="<%= enrollment.grade_result %>" required>
+                                    <input class="input" type="number" name="resitGrade" value="<%= enrollment.resit_grade %>">
+                                    <input class="input" type="text" name="resitResult" value="<%= enrollment.resit_result %>">
+                                    <button class="button is-primary" type="submit">Update</button>
+                                </form>
+                                <form action="/admin/grades/delete" method="post" style="display:inline;">
+                                    <input type="hidden" name="enrollmentId" value="<%= enrollment.enrollment_id %>">
+                                    <button class="button is-danger" type="submit">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+            <%- include('../../partials/page', { totalPages, currentPage }) %>
+            <div class="buttons">
+                <form action="/admin/grades/upload" method="post" enctype="multipart/form-data">
+                    <div class="file has-name">
+                        <label class="file-label">
+                            <input class="file-input" type="file" name="csvFile" required>
+                            <span class="file-cta">
+                                <span class="file-icon">
+                                    <i class="fas fa-upload"></i>
+                                </span>
+                                <span class="file-label">
+                                    Choose a file…
+                                </span>
+                            </span>
+                            <span class="file-name">
+                                No file uploaded
+                            </span>
+                        </label>
+                    </div>
+                    <button class="button is-primary" type="submit">Upload CSV</button>
+                </form>
+            </div>
+        </div>
+    </section>
+    <script>
+        document.querySelector('.file-input').addEventListener('change', function() {
+            const fileName = document.querySelector('.file-name');
+            fileName.textContent = this.files[0].name;
+        });
+    </script>
+</body>
+</html>

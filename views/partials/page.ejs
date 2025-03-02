@@ -1,0 +1,9 @@
+<nav class="pagination is-centered" role="navigation" aria-label="pagination">
+    <ul class="pagination-list">
+        <% for (let i = 1; i <= totalPages; i++) { %>
+            <li>
+                <a class="pagination-link <%= i === currentPage ? 'is-current' : '' %>" href="?page=<%= i %>"><%= i %></a>
+            </li>
+        <% } %>
+    </ul>
+</nav>

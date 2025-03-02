@@ -10,16 +10,16 @@ function isAdmin(req, res, next) {
     if (req.session.role === 'ADMIN') { // Only allow admin role
         return next();
     } else {
-        res.status(403).send('Access denied!');
+        res.status(403).send('Access denied');
         // # Note : Redirect to a better 403 error page
     }
 }
 
 function isStudent(req, res, next) {
-    if (req.session.role === 'STUDENT') { // Only allow student role
+    if (req.session.role === 'ADMIN' || req.session.role === 'STUDENT') { // Allow both admin and student roles
         return next();
     } else {
-        res.status(403).send('Need to Login as a student first!');
+        res.status(403).send('Access denied');
         // # Note : Redirect to a better 403 error page
     }
 }

@@ -26,7 +26,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 // Routes setup
-const adminRoutes = require('./routes/admin'); // Import admin routes
+const adminRoutes = require('./routes/admin/index'); // Import admin routes
 const studentRoutes = require('./routes/student'); // Import student routes
 const authRoutes = require('./routes/auth'); // Import auth routes
 

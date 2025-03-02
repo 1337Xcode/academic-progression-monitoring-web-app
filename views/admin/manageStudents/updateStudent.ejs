@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Student</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Update Student</h1>
+            <form action="/admin/students/update" method="post">
+                <input type="hidden" name="studentId" value="<%= student.student_id %>">
+                <div class="field">
+                    <label class="label" for="firstName">First Name:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="firstName" name="firstName" value="<%= student.first_name %>" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="lastName">Last Name:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="lastName" name="lastName" value="<%= student.last_name %>" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="programmeId">Programme ID:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="programmeId" name="programmeId" value="<%= student.programme_id %>" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="entryLevel">Entry Level:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="entryLevel" name="entryLevel" value="<%= student.entry_level %>" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="acadYr">Academic Year:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="acadYr" name="acadYr" value="<%= student.acad_yr %>" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="statusStudy">Status of Study:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="statusStudy" name="statusStudy" value="<%= student.status_study %>" required>
+                    </div>
+                </div>
+                <div class="control">
+                    <button class="button is-primary" type="submit">Update Student</button>
+                </div>
+            </form>
+        </div>
+    </section>
+</body>
+</html>

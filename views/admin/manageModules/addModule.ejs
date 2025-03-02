@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Module</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Add Module</h1>
+            <form action="/admin/modules/add" method="post">
+                <div class="field">
+                    <label class="label" for="name">Name:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="name" name="name" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="code">Code:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="code" name="code" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="subjCatalog">Subject Catalog:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="subjCatalog" name="subjCatalog" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="creditValue">Credit Value:</label>
+                    <div class="control">
+                        <input class="input" type="number" id="creditValue" name="creditValue" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="semester">Semester:</label>
+                    <div class="control">
+                        <div class="select">
+                            <select id="semester" name="semester" required>
+                                <option value="AUT">Autumn</option>
+                                <option value="SPR">Spring</option>
+                                <option value="FULL">Full Year</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="pathwayCode">Pathway Code:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="pathwayCode" name="pathwayCode" required>
+                    </div>
+                </div>
+                <div class="control">
+                    <button class="button is-primary" type="submit">Add Module</button>
+                </div>
+            </form>
+        </div>
+    </section>
+</body>
+</html>

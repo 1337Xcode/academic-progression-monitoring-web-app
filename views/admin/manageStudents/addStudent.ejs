@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Student</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Add New Student</h1>
+            <form action="/admin/students/add" method="post">
+                <div class="field">
+                    <label class="label" for="firstName">First Name:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="firstName" name="firstName" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="lastName">Last Name:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="lastName" name="lastName" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="studentId">Student ID:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="studentId" name="studentId" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="programmeId">Programme ID:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="programmeId" name="programmeId" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="entryLevel">Entry Level:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="entryLevel" name="entryLevel" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="acadYr">Academic Year:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="acadYr" name="acadYr" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="statusStudy">Status of Study:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="statusStudy" name="statusStudy" required>
+                    </div>
+                </div>
+                <div class="control">
+                    <button class="button is-primary" type="submit">Add Student</button>
+                </div>
+            </form>
+        </div>
+    </section>
+</body>
+</html>

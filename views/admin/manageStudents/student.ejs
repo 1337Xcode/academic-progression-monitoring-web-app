@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Students</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Manage Students</h1>
+            <% const page = 'manageStudents'; %>
+            <%- include('../../partials/navbar', { page: page }) %>
+            <table class="table is-fullwidth is-striped">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Programme</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% students.forEach(student => { %>
+                        <tr>
+                            <td><%= student.sId %></td>
+                            <td><%= student.first_name %></td>
+                            <td><%= student.last_name %></td>
+                            <td><%= student.User.email %></td>
+                            <td><%= student.programme_id %></td>
+                            <td>
+                                <a class="button is-info" href="/admin/manageStudents/updateStudent?studentId=<%= student.student_id %>">Update</a>
+                                <form action="/admin/students/delete" method="post" style="display:inline;">
+                                    <input type="hidden" name="studentId" value="<%= student.student_id %>">
+                                    <button class="button is-danger" type="submit">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+            <%- include('../../partials/page', { totalPages, currentPage }) %>
+            <div class="buttons">
+                <a class="button is-primary" href="/admin/manageStudents/addStudent">Add Student</a>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
