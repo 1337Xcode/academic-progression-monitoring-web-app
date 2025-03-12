@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Update Student</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
@@ -9,6 +9,7 @@
         <div class="container">
             <h1 class="title">Update Student</h1>
             <form action="/admin/students/update" method="post">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <input type="hidden" name="studentId" value="<%= student.student_id %>">
                 <div class="field">
                     <label class="label" for="firstName">First Name:</label>

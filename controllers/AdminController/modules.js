@@ -1,7 +1,7 @@
 const { Module, Enrollment } = require('../../models'); // Import models
 
 // Render the manageModules page with pagination
-exports.manageModules = async (req, res) => {
+exports.manageModules = async (req, res) => { // Same as the manageGrades function
     const page = parseInt(req.query.page) || 1;
     const limit = 15; // Number of modules per page
     const offset = (page - 1) * limit;
@@ -12,7 +12,7 @@ exports.manageModules = async (req, res) => {
             offset
         });
 
-        const totalPages = Math.ceil(count / limit);
+        const totalPages = Math.ceil(count / limit); // Calculate total number of pages
 
         res.render('admin/manageModules/module', { modules, totalPages, currentPage: page });
     } catch (error) {
@@ -22,7 +22,7 @@ exports.manageModules = async (req, res) => {
 };
 
 // Add a new module
-exports.addModule = async (req, res) => {
+exports.addModule = async (req, res) => { 
     const { name, code, subjCatalog, creditValue, semester, pathwayCode } = req.body;
     try {
         await Module.create({
@@ -44,7 +44,7 @@ exports.addModule = async (req, res) => {
 exports.renderUpdateModule = async (req, res) => {
     const { moduleId } = req.query;
     try {
-        const module = await Module.findOne({ where: { module_id: moduleId } });
+        const module = await Module.findOne({ where: { module_id: moduleId } }); // Find module by ID from the query
         if (module) {
             res.render('admin/manageModules/updateModule', { module });
         } else {
@@ -62,7 +62,7 @@ exports.updateModule = async (req, res) => {
     try {
         const module = await Module.findOne({ where: { module_id: moduleId } });
         if (module) {
-            await module.update({
+            await module.update({ // Update module details with new values from the form
                 module_title: name || module.module_title,
                 subj_code: code || module.subj_code,
                 subj_catalog: subjCatalog || module.subj_catalog,
@@ -84,7 +84,7 @@ exports.updateModule = async (req, res) => {
 exports.deleteModule = async (req, res) => {
     const { moduleId } = req.body;
     try {
-        const module = await Module.findOne({ where: { module_id: moduleId } });
+        const module = await Module.findOne({ where: { module_id: moduleId } }); // Find module by ID
         if (module) {
             await Enrollment.destroy({ where: { module_id: module.module_id } }); // Delete related enrollments
             await module.destroy();

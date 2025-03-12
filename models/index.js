@@ -17,6 +17,7 @@ Enrollment.belongsTo(Student, { foreignKey: 'student_id' });
 Module.hasMany(Enrollment, { foreignKey: 'module_id' });
 Enrollment.belongsTo(Module, { foreignKey: 'module_id' });
 
+// Export models
 module.exports = {
     User,
     Student,

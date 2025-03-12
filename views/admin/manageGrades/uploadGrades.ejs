@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Upload Grades</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
@@ -9,6 +9,7 @@
         <div class="container">
             <h1 class="title">Upload Grades</h1>
             <form action="/admin/grades/upload" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <div class="file has-name">
                     <label class="file-label">
                         <input class="file-input" type="file" name="csvFile" required>

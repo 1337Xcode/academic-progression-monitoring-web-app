@@ -3,47 +3,100 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const dotenv = require('dotenv');
+const csrf = require('csurf');
+const cookieParser = require('cookie-parser');
+const multer = require('multer');
 
-dotenv.config(); // Load environment variables from .env file
+// Import security configuration
+const setupSecurity = require('./config/securityConfig');
+
+dotenv.config();
 
 // Initialize express app
 const app = express();
 
-// Middleware setup
-app.use(bodyParser.urlencoded({ extended: true })); // Ensure extended is true
-app.use(bodyParser.json());
-app.use(session({
-    secret: process.env.SESSION_SECRET, // Use secret key from .env file
-    resave: false, // Don't save session if unmodified
-    saveUninitialized: true // Always create a session to keep track of the user
-}));
+// Setup security middleware
+setupSecurity(app);
 
-// Static files setup
+// Basic middleware setup
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieParser());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// Session setup
+app.use(session({
+    name: "web_project_session",
+    secret: process.env.SESSION_SECRET || 'your_secret_key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: process.env.NODE_ENV === 'production' }
+}));
 
 // View engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// Routes setup
-const adminRoutes = require('./routes/admin/index'); // Import admin routes
-const studentRoutes = require('./routes/student'); // Import student routes
-const authRoutes = require('./routes/auth'); // Import auth routes
+// List of paths that should be exempt from CSRF protection
+const csrfExcludedPaths = [
+    '/admin/grades/upload'
+];
+
+// Custom CSRF middleware that excludes specific paths
+app.use((req, res, next) => {
+    // Skip CSRF for excluded paths
+    if (csrfExcludedPaths.includes(req.path)) {
+        return next();
+    }
+    
+    // Apply CSRF protection for all other routes
+    csrf({ cookie: false })(req, res, next);
+});
+
+// Make CSRF token available to all views
+app.use((req, res, next) => {
+    if (req.csrfToken) {
+        res.locals.csrfToken = req.csrfToken();
+    }
+    next();
+});
+
+// Import routes
+const adminRoutes = require('./routes/admin/index');
+const studentRoutes = require('./routes/student');
+const authRoutes = require('./routes/auth');
 
 // Home route
 app.get('/', (req, res) => {
-    res.redirect('/auth/login'); // Redirect to login page
+    res.redirect('/auth/login');
 });
 
-app.use('/admin', adminRoutes); // Use admin routes for /admin path
-app.use('/student', studentRoutes);  // Use student routes for /student path
-app.use('/auth', authRoutes); // Use auth routes for /auth path
+// Use routes
+app.use('/admin', adminRoutes);
+app.use('/student', studentRoutes);
+app.use('/auth', authRoutes);
+
+// Special route for CSRF debugging
+app.get('/check-csrf', (req, res) => {
+    res.send(`CSRF token: ${req.csrfToken ? req.csrfToken() : 'Not available'}`);
+});
+app.post('/check-csrf', (req, res) => {
+    res.send('CSRF validation successful');
+});
 
 // Error handling middleware
-const errorMiddleware = require('./middlewares/errorMiddleware'); // Import error middleware module
+app.use((err, req, res, next) => {
+    if (err.code === 'EBADCSRFTOKEN') {
+        // Handle CSRF token errors
+        console.error('CSRF Error:', req.method, req.path);
+        return res.status(403).send('CSRF token verification failed. Please try again.');
+    }
+    next(err);
+});
 
-app.use(errorMiddleware.notFound); // Handle 404 errors
-app.use(errorMiddleware); // Handle other errors (e.g. 500)
+// Import and use error middleware
+const errorMiddleware = require('./middlewares/errorMiddleware');
+app.use(errorMiddleware.notFound);
+app.use(errorMiddleware.internalServerError);
 
-// Export app
 module.exports = app;

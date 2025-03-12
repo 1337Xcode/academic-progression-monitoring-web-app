@@ -1,11 +1,13 @@
+// Check if the user is authenticated
 function isAuthenticated(req, res, next) {
-    if (req.session.userId) {
+    if (req.session.userId) { 
         return next();
     } else {
         res.redirect('/auth/login'); // Redirect to login page
     }
 }
 
+// Check if the user role is set to ADMIN
 function isAdmin(req, res, next) {
     if (req.session.role === 'ADMIN') { // Only allow admin role
         return next();
@@ -15,8 +17,9 @@ function isAdmin(req, res, next) {
     }
 }
 
+// Check if the user role is set to STUDENT
 function isStudent(req, res, next) {
-    if (req.session.role === 'ADMIN' || req.session.role === 'STUDENT') { // Allow both admin and student roles
+    if (req.session.role === 'STUDENT') { // Only allow student role
         return next();
     } else {
         res.status(403).send('Access denied');
@@ -24,4 +27,4 @@ function isStudent(req, res, next) {
     }
 }
 
-module.exports = { isAuthenticated, isAdmin, isStudent };
+module.exports = { isAuthenticated, isAdmin, isStudent }; // Export the middleware functions

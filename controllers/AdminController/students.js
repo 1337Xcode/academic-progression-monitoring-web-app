@@ -1,8 +1,10 @@
 const { Student, User, Enrollment } = require('../../models'); // Import models
 const bcrypt = require('bcrypt'); // Ensure bcrypt is imported
 
+// # Note: Do better documentation before submitting the final project
+
 // Render the manageStudents page with pagination
-exports.manageStudents = async (req, res) => {
+exports.manageStudents = async (req, res) => { // Same stuff as the manageModules function
     const page = parseInt(req.query.page) || 1;
     const limit = 15; // Number of students per page
     const offset = (page - 1) * limit;
@@ -96,6 +98,7 @@ exports.updateStudent = async (req, res) => {
 // Delete a student
 exports.deleteStudent = async (req, res) => {
     const { studentId } = req.body;
+    console.log(`Deleting student with ID: ${studentId}`);
     try {
         const student = await Student.findOne({ where: { student_id: studentId } });
         if (student) {
@@ -106,7 +109,7 @@ exports.deleteStudent = async (req, res) => {
             res.status(404).send('Student not found');
         }
     } catch (error) {
-        console.error(error);
+        console.error('Error deleting student:', error);
         res.status(500).send('Error deleting student');
     }
 };

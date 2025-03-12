@@ -1,29 +1,37 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="/css/styles.css">
+    <!-- Load reCAPTCHA v3 script -->
+    <script src="https://www.google.com/recaptcha/api.js?render=6Le5GeYqAAAAAEZTAg_czNZeKJgqTyi8ReTc1Dha"></script>
 </head>
 <body>
     <div class="login-container">
         <div class="box">
             <h1 class="title has-text-centered">Login</h1>
-            <form action="/auth/login" method="POST"> <!-- Add action attribute -->
+            <form id="login-form" action="/auth/login" method="POST">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" id="recaptchaResponse" name="recaptchaResponse">
                 <div class="field">
-                    <label class="label">Username</label>
+                    <label class="label" for="username">Username</label>
                     <div class="control has-icons-left">
-                        <input class="input is-rounded" type="text" name="username" placeholder="Enter your username" required>
+                        <input id="username" class="input is-rounded" type="text" name="username" 
+                               placeholder="Enter your username" required
+                               minlength="5" maxlength="30" pattern="[^\s]+">
                         <span class="icon is-small is-left">
                             <i class="fas fa-user"></i>
                         </span>
                     </div>
                 </div>
                 <div class="field">
-                    <label class="label" >Password</label>
+                    <label class="label" for="password">Password</label>
                     <div class="control has-icons-left">
-                        <input class="input is-rounded" type="password" name="password" placeholder="Enter your password" required>
+                        <input id="password" class="input is-rounded" type="password" name="password" 
+                               placeholder="Enter your password" required
+                               minlength="5" maxlength="30" pattern="[^\s]+">
                         <span class="icon is-small is-left">
                             <i class="fas fa-lock"></i>
                         </span>
@@ -35,7 +43,29 @@
                     </div>
                 </div>
             </form>
+            <br>
+            <form action="/check-csrf" method="POST">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="button is-info is-fullwidth is-rounded">Check CSRF Token</button>
+            </form>
         </div>
     </div>
+    <script>
+        document.getElementById("login-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            console.log("Form submission intercepted. Initiating reCAPTCHA token generation...");
+            grecaptcha.ready(function() {
+                grecaptcha.execute('6Le5GeYqAAAAAEZTAg_czNZeKJgqTyi8ReTc1Dha', {action: 'LOGIN'})
+                .then(function(token) {
+                    console.log("reCAPTCHA token:", token);
+                    document.getElementById('recaptchaResponse').value = token;
+                    event.target.submit();
+                })
+                .catch(function(error) {
+                    console.error("Error generating reCAPTCHA token:", error);
+                });
+            });
+        });
+    </script>
 </body>
 </html>

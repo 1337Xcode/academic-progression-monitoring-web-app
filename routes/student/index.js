@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { isStudent } = require('../../middlewares/authMiddleware');
+const StudentController = require('../../controllers/StudentController');
+const { isAuthenticated } = require('../../middlewares/authMiddleware');
 
-// Define student routes here
-router.get('/profile', isStudent, (req, res) => {
-    res.render('student/profile'); // Render the student profile view
-});
+// Student profile route
+router.get('/profile', isAuthenticated, StudentController.profile);
+router.post('/profile/update', isAuthenticated, StudentController.updateProfile);
 
 module.exports = router;

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Manage Students</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
@@ -32,6 +32,7 @@
                             <td>
                                 <a class="button is-info" href="/admin/manageStudents/updateStudent?studentId=<%= student.student_id %>">Update</a>
                                 <form action="/admin/students/delete" method="post" style="display:inline;">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                     <input type="hidden" name="studentId" value="<%= student.student_id %>">
                                     <button class="button is-danger" type="submit">Delete</button>
                                 </form>
