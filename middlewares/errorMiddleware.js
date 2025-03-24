@@ -11,6 +11,24 @@ exports.notFound = (req, res, next) => {
 };
 
 /**
+ * Handle 400 errors (Bad Request)
+ */
+exports.badRequest = (req, res, next, message = 'Bad Request') => {
+    const error = new Error(message);
+    res.status(400);
+    next(error);
+};
+
+/**
+ * Handle 403 errors (Forbidden)
+ */
+exports.forbidden = (req, res, next, message = 'Access Denied') => {
+    const error = new Error(message);
+    res.status(403);
+    next(error);
+};
+
+/**
  * Handle 500 errors
  */
 exports.internalServerError = (err, req, res, next) => {

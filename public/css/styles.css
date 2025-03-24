@@ -1,34 +1,36 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
 :root { /* CSS variables */
-    --primary-color: #4CAF50; /* green */
-    --primary-color-dark: #388E3C; /* dark green */
-    --secondary-color: #FFC107; /* amber */
-    --secondary-color-dark: #FFA000; /* dark amber */
-    --background-color: #F5F5F5; /* light grey */
-    --box-shadow-color: rgba(0, 0, 0, 0.1); /* black */
+    --primary-color: #b71c1c;           /* deep red */
+    --primary-color-dark: #7f0000;      /* darker red */
+    --secondary-color: #212121;         /* almost black */
+    --secondary-color-dark: #000000;    /* black */
+    --background-color: #f4f4f4;        /* light gray */
+    --box-shadow-color: rgba(0, 0, 0, 0.12); /* subtle black */
     --font-family: 'Roboto', sans-serif; /* Roboto font */
 }
 
-body {
+.box body {
     background-color: var(--background-color);
     font-family: var(--font-family);
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    min-height: 100vh;
     margin: 0;
+    /* Remove flex centering from body, use container centering instead */
+    display: block;
 }
 
 .login-container {
     width: 100%;
     max-width: 400px;
     padding: 20px;
+    margin: 40px auto 0 auto;
+    /* Add margin-top to avoid overlap with header */
 }
 
 .box {
     box-shadow: 0 2px 10px var(--box-shadow-color);
     border-radius: 10px;
+    background: #fff;
 }
 
 .title {
@@ -51,4 +53,41 @@ body {
 
 .button.is-rounded:hover {
     background-color: var(--primary-color-dark);
+}
+
+.header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    padding: 1rem 1.5rem 0.5rem 1.5rem;
+    background: #fff;
+    z-index: 10;
+    box-shadow: 0 2px 8px var(--box-shadow-color);
+}
+
+.header-bar .logo {
+    height: 48px;
+}
+
+.header-bar .logout-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.header-bar .logout-btn .fa-sign-out-alt {
+    font-size: 1.7rem;
+    color: var(--primary-color);
+}
+
+@media (max-width: 600px) {
+    .header-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1rem 0.5rem 0.5rem 0.5rem;
+    }
+    .login-container {
+        margin-top: 20px;
+    }
 }

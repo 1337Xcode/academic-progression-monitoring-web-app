@@ -1,118 +1,111 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Manage Grades</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-</head>
-<body>
-    <section class="section">
-        <div class="container">
+<%- include('../../partials/header', { title: 'Manage Grades', fontAwesome: true }) %>
+<section class="section">
+    <div class="container">
+        <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
             <h1 class="title">Manage Grades</h1>
-            <% const page = 'manageGrades'; %>
-            <%- include('../../partials/navbar', { page: page }) %>
-            <table class="table is-fullwidth is-striped">
-                <thead>
-                    <tr>
-                        <th>Student ID</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Module</th>
-                        <th>First Grade</th>
-                        <th>Grade Result</th>
-                        <th>Resit Grade</th>
-                        <th>Resit Result</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% enrollments.forEach(grade => { %>
-                        <tr id="grade-<%= grade.enrollment_id %>">
-                            <td><%= grade.Student.sId %></td>
-                            <td><%= grade.Student.first_name %></td>
-                            <td><%= grade.Student.last_name %></td>
-                            <td><%= grade.Module.module_title %></td>
-                            <td><%= grade.first_grade %></td>
-                            <td><%= grade.grade_result %></td>
-                            <td><%= grade.resit_grade %></td>
-                            <td><%= grade.resit_result %></td>
-                            <td>
-                                <form action="/admin/grades/update?_csrf=<%= csrfToken %>" method="post" style="display:inline;">
-                                    <input type="hidden" name="enrollmentId" value="<%= grade.enrollment_id %>">
-                                    <input class="input" type="number" name="firstGrade" value="<%= grade.first_grade %>" required>
-                                    <input class="input" type="text" name="gradeResult" value="<%= grade.grade_result %>" required>
-                                    <input class="input" type="number" name="resitGrade" value="<%= grade.resit_grade %>" step="0.01">
-                                    <input class="input" type="text" name="resitResult" value="<%= grade.resit_result %>">
-                                    <button class="button is-primary" type="submit">Update</button>
-                                </form>
-                                <form class="delete-grade-form" data-enrollment-id="<%= grade.enrollment_id %>" action="/admin/grades/delete?_csrf=<%= csrfToken %>" method="post" style="display:inline;">
-                                    <input type="hidden" name="enrollmentId" value="<%= grade.enrollment_id %>">
-                                    <button class="button is-danger" type="submit">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
-                    <% }) %>
-                </tbody>
-            </table>
-            <%- include('../../partials/page', { totalPages, currentPage }) %>
-            <div class="buttons mt-5">
-                <!-- Remove CSRF token for file uploads -->
-                <form action="/admin/grades/upload" method="post" enctype="multipart/form-data">
-                    <div class="file has-name is-boxed">
-                        <label class="file-label" >
-                            <input class="file-input" type="file" name="csvFile" id="gradesCsvFile">
-                            <span class="file-cta">
-                                <span class="file-icon">
-                                    <i class="fas fa-upload"></i>
-                                </span>
-                                <span class="file-label">
-                                    Choose a file…
-                                </span>
-                            </span>
-                            <span class="file-name" id="gradesFileName">
-                                No file selected
-                            </span>
-                        </label>
-                    </div>
-                    <button class="button is-primary mt-3 is-fullwidth" type="submit">Upload CSV</button>
-                </form>
-            </div>
         </div>
-    </section>
-    <script>
-        document.getElementById('gradesCsvFile').addEventListener('change', function() {
-            const fileName = document.getElementById('gradesFileName');
-            if(this.files.length > 0) {
-                fileName.textContent = this.files[0].name;
-            } else {
-                fileName.textContent = 'No file selected';
+        <% const page = 'manageGrades'; %>
+        <%- include('../../partials/navbar', { page: page }) %>
+        <table class="table is-fullwidth is-striped">
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Module</th>
+                    <th>First Grade</th>
+                    <th>Grade Result</th>
+                    <th>Resit Grade</th>
+                    <th>Resit Result</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% enrollments.forEach(grade => { %>
+                    <tr id="grade-<%= grade.enrollment_id %>">
+                        <td><%= grade.Student.sId %></td>
+                        <td><%= grade.Student.first_name %></td>
+                        <td><%= grade.Student.last_name %></td>
+                        <td><%= grade.Module.module_title %></td>
+                        <td><%= grade.first_grade %></td>
+                        <td><%= grade.grade_result %></td>
+                        <td><%= grade.resit_grade %></td>
+                        <td><%= grade.resit_result %></td>
+                        <td>
+                            <form action="/admin/grades/update?_csrf=<%= csrfToken %>" method="post" style="display:inline;">
+                                <input type="hidden" name="enrollmentId" value="<%= grade.enrollment_id %>">
+                                <input class="input" type="number" name="firstGrade" value="<%= grade.first_grade %>" min="0" max="100" required>
+                                <input class="input" type="text" name="gradeResult" value="<%= grade.grade_result %>" required>
+                                <input class="input" type="number" name="resitGrade" value="<%= grade.resit_grade %>" min="0" max="100" step="0.01">
+                                <input class="input" type="text" name="resitResult" value="<%= grade.resit_result %>">
+                                <button class="button is-primary" type="submit">Update</button>
+                            </form>
+                            <form class="delete-grade-form" data-enrollment-id="<%= grade.enrollment_id %>" action="/admin/grades/delete?_csrf=<%= csrfToken %>" method="post" style="display:inline;">
+                                <input type="hidden" name="enrollmentId" value="<%= grade.enrollment_id %>">
+                                <button class="button is-danger" type="submit">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+        <%- include('../../partials/page', { totalPages, currentPage }) %>
+        <div class="buttons mt-5">
+            <form action="/admin/grades/upload" method="post" enctype="multipart/form-data">
+                <div class="file has-name is-boxed">
+                    <label class="file-label" >
+                        <input class="file-input" type="file" name="csvFile" id="gradesCsvFile">
+                        <span class="file-cta">
+                            <span class="file-icon">
+                                <i class="fas fa-upload"></i>
+                            </span>
+                            <span class="file-label">
+                                Choose a file…
+                            </span>
+                        </span>
+                        <span class="file-name" id="gradesFileName">
+                            No file selected
+                        </span>
+                    </label>
+                </div>
+                <button class="button is-primary mt-3 is-fullwidth" type="submit">Upload CSV</button>
+            </form>
+        </div>
+    </div>
+</section>
+<script>
+    document.getElementById('gradesCsvFile').addEventListener('change', function() {
+        const fileName = document.getElementById('gradesFileName');
+        if(this.files.length > 0) {
+            fileName.textContent = this.files[0].name;
+        } else {
+            fileName.textContent = 'No file selected';
+        }
+    });
+
+    document.querySelectorAll('.delete-grade-form').forEach(form => {
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const enrollmentId = this.dataset.enrollmentId;
+            
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ enrollmentId })
+                });
+
+                if (response.ok) {
+                    document.getElementById(`grade-${enrollmentId}`).remove();
+                } else {
+                    console.error('Failed to delete grade');
+                }
+            } catch (error) {
+                console.error('Error:', error);
             }
         });
-
-        document.querySelectorAll('.delete-grade-form').forEach(form => {
-            form.addEventListener('submit', async function(event) {
-                event.preventDefault();
-                const enrollmentId = this.dataset.enrollmentId;
-                
-                try {
-                    const response = await fetch(this.action, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ enrollmentId })
-                    });
-
-                    if (response.ok) {
-                        document.getElementById(`grade-${enrollmentId}`).remove();
-                    } else {
-                        console.error('Failed to delete grade');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+    });
+</script>
+<%- include('../../partials/footer') %>

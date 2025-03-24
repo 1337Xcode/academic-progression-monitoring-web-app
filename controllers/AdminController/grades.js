@@ -4,6 +4,7 @@ const fs = require('fs');
 
 // Render the manageGrades page with student grades and pagination based on individual students
 exports.manageGrades = async (req, res) => {
+    // pagination reference: https://stackoverflow.com/questions/38211170/sequelize-pagination
     const page = parseInt(req.query.page) || 1; // Current page number
     const limit = 1; // Number of students per page
     const offset = (page - 1) * limit; // Offset for pagination calculation (page 1: 0, page 2: 1, page 3: 2, etc.)

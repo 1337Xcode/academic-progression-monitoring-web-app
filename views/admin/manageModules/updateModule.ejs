@@ -32,8 +32,9 @@
                 <div class="field">
                     <label class="label" for="creditValue">Credit Value:</label>
                     <div class="control">
-                        <input class="input" type="number" id="creditValue" name="creditValue" value="<%= module.credit_value %>" required>
+                        <input class="input" type="number" id="creditValue" name="creditValue" min="10" max="40" step="10" value="<%= module.credit_value %>" required>
                     </div>
+                    <p class="help">Standard values are 10, 20, 30, or 40 credits</p>
                 </div>
                 <div class="field">
                     <label class="label" for="semester">Semester:</label>
@@ -59,5 +60,18 @@
             </form>
         </div>
     </section>
+
+    <script>
+        document.getElementById('creditValue').addEventListener('input', function(e) {
+            const value = parseInt(this.value);
+            if (value < 10 || value > 40) {
+                this.setCustomValidity('Credit value must be between 10 and 40.');
+            } else if (![10, 20, 30, 40].includes(value)) {
+                this.setCustomValidity('Standard credit values are 10, 20, 30, or 40.');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    </script>
 </body>
 </html>

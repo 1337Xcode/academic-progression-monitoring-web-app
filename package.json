@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "start": "node ./bin/www",
-    "dev": "nodemon ./bin/www",
+    "start": "node --no-deprecation ./bin/www",
+    "dev": "nodemon --no-deprecation ./bin/www",
     "test": "jest"
   },
   "author": "",
@@ -19,7 +19,7 @@
     "cookie": "^1.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
-    "csurf": "^1.10.0",
+    "csurf": "^1.2.2",
     "csv-parser": "^3.2.0",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
@@ -34,7 +34,8 @@
     "mysql2": "^3.12.0",
     "node-fetch": "^2.7.0",
     "sequelize": "^6.37.5",
-    "uid-safe": "^2.1.5"
+    "uid-safe": "^2.1.5",
+    "xss-clean": "^0.1.4"
   },
   "devDependencies": {
     "jest": "^29.0.0",

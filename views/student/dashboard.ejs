@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/header', { title: 'Student Dashboard' }) %>
+<section class="section">
+    <div class="container">
+        <h1 class="title">Student Dashboard</h1>
+        <div class="columns is-multiline">
+            <div class="column is-one-third">
+                <div class="card">
+                    <div class="card-content has-text-centered">
+                        <img src="<%= student.profile_image || '/images/default-profile.png' %>" alt="Profile Image" style="max-width:100px;border-radius:50%;">
+                        <p class="title is-5 mt-2"><%= student.first_name %> <%= student.last_name %></p>
+                        <p class="subtitle is-6"><%= student.sId %></p>
+                        <a class="button is-5 is-link mt-3" href="/student/profile">Edit Profile</a>
+                    </div>
+                </div>
+            </div>
+            <div class="column is-one-third">
+                <div class="card">
+                    <div class="card-content">
+                        <p class="title is-5">Progression Summary</p>
+                        <p><strong>Overall Decision:</strong> <%= overallProgressionDecision || 'No decision available' %></p>
+                        <% if (level2Stats && level2Stats.enrollments && level2Stats.enrollments.length > 0) { %>
+                            <p><strong>Level 2 Credits:</strong> <%= level2Stats.totalCredits %> / <%= level2Stats.requiredCredits %></p>
+                            <p><strong>Level 2 Modules Passed:</strong> <%= level2Stats.modulesPassed %></p>
+                            <p><strong>Modules Requiring Resit/Retry:</strong> <%= level2Stats.modulesRequiringResit || 0 %></p>
+                            <p><strong>Average Percentage:</strong> <%= level2Stats.averagePercentage ? level2Stats.averagePercentage + '%' : 'N/A' %></p>
+                        <% } else if (level1Stats && level1Stats.enrollments && level1Stats.enrollments.length > 0) { %>
+                            <p><strong>Level 1 Credits:</strong> <%= level1Stats.totalCredits %> / <%= level1Stats.requiredCredits %></p>
+                            <p><strong>Level 1 Modules Passed:</strong> <%= level1Stats.modulesPassed %></p>
+                            <p><strong>Modules Requiring Resit/Retry:</strong> <%= level1Stats.modulesRequiringResit || 0 %></p>
+                            <p><strong>Average Percentage:</strong> <%= level1Stats.averagePercentage ? level1Stats.averagePercentage + '%' : 'N/A' %></p>
+                        <% } else { %>
+                            <p>Progression data not available.</p>
+                        <% } %>
+                        <a class="button is-5 is-info mt-4" href="/student/progression">View Full Details</a>
+                    </div>
+                </div>
+            </div>
+            <div class="column is-one-third">
+                <div class="card">
+                    <div class="card-content has-text-centered">
+                        <p class="title is-5">Messages</p>
+                        <a class="button is-info is-fullwidth" href="/student/messages">
+                            View Your Messages
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<%- include('../partials/footer') %>

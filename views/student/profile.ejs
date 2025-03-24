@@ -1,15 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <title>Student Profile</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
-</head>
-<body>
-    <section class="section">
-        <div class="container">
+<%- include('../partials/header', { title: 'Student Profile' }) %>
+<section class="section">
+    <div class="container">
+        <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
             <h1 class="title">Student Profile</h1>
-            <p>Welcome, Student!</p>
+            <a href="/student/dashboard" class="button is-info">
+                <span class="icon">
+                    <i class="fas fa-home"></i>
+                </span>
+                <span>Back to Dashboard</span>
+            </a>
         </div>
-    </section>
-</body>
-</html>
+        <div class="box">
+            <div class="columns">
+                <div class="column is-one-quarter has-text-centered">
+                    <img src="<%= student.profile_image || '/images/default-profile.png' %>" alt="Profile Image" style="max-width:120px;border-radius:50%;">
+                    <form action="/student/profile/image" method="POST" enctype="multipart/form-data" class="mt-3">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <input type="file" name="profileImage" accept="image/*" required>
+                        <button class="button is-small is-link mt-2" type="submit">Change Image</button>
+                    </form>
+                </div>
+                <div class="column">
+                    <p><strong>Name:</strong> <%= student.first_name %> <%= student.last_name %></p>
+                    <p><strong>Student Number:</strong> <%= student.sId %></p>
+                    <p><strong>Programme:</strong> <%= student.Programme ? student.Programme.programme_name : '' %></p>
+                    <p><strong>Level/Stage:</strong> <%= student.entry_level %></p>
+                    <p><strong>Academic Year:</strong> <%= student.acad_yr %></p>
+                    <p><strong>Status:</strong> <%= student.status_study %></p>                    
+                    <% if (typeof emailError !== 'undefined' && emailError) { %>
+                        <div class="notification is-danger is-light">
+                            <%= emailError %>
+                        </div>
+                    <% } %>
+                    <form action="/student/profile/email" method="POST" class="mt-3" style="display: flex; align-items: center;">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <label class="label mb-0 mr-2" style="margin-bottom:0;margin-right:0.5em;"><strong>Secondary Email:</strong></label>
+                        <input class="input mr-2" type="email" name="secondary_email" value="<%= student.secondary_email || '' %>" placeholder="Add secondary email" style="width:auto;min-width:220px;" minlength="4" maxlength="254" required>
+                        <button class="button is-small is-link" type="submit">Update Email</button>
+                    </form>
+                    <% if (typeof phoneError !== 'undefined' && phoneError) { %>
+                        <div class="notification is-danger is-light">
+                            <%= phoneError %>
+                        </div>
+                    <% } %>
+                    <form action="/student/profile/phone" method="POST" class="mt-3" style="display: flex; align-items: center;">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <label class="label mb-0 mr-2" style="margin-bottom:0;margin-right:0.5em;"><strong>Phone Number:</strong></label>
+                        <input class="input mr-2" type="tel" name="phone" value="<%= student.phone || '' %>" placeholder="Add phone number" style="width:auto;min-width:150px;" minlength="4" maxlength="15" required>
+                        <button class="button is-small is-link" type="submit">Update Phone</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<%- include('../partials/footer') %>

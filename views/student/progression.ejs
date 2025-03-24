@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/header', { title: 'Progression' }) %>
+    <section class="section">
+        <div class="container">
+            <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
+                <h1 class="title">Progression Overview</h1>
+                <a href="/student/dashboard" class="button is-info">
+                    <span class="icon">
+                        <i class="fas fa-home"></i>
+                    </span>
+                    <span>Back to Dashboard</span>
+                </a>
+            </div>
+            <div class="box has-background-light mb-5">
+                <p class="title is-4 has-text-centered">Overall Progression Decision</p>
+                <p class="subtitle is-5 has-text-centered">
+                    <%= overallProgressionDecision %>
+                </p>
+            </div>
+            <div class="card mb-5">
+                <header class="card-header">
+                    <p class="card-header-title">Level 1 Progression Status</p>
+                </header>
+                <div class="card-content">
+                    <div class="content">
+                        <% if (level1Stats.enrollments && level1Stats.enrollments.length> 0) { %>
+                            <p><strong>Decision:</strong>
+                                <%= level1Stats.levelDecision || 'No decision available' %>
+                            </p>
+                            <p><strong>Credits Earned:</strong>
+                                <%= level1Stats.totalCredits %> / <%= level1Stats.requiredCredits %>
+                            </p>
+                            <p><strong>Modules Passed:</strong>
+                                <%= level1Stats.modulesPassed %>
+                            </p>
+                            <p><strong>Modules Requiring Resit/Retry:</strong>
+                                <%= level1Stats.modulesRequiringResit || 0 %>
+                            </p>
+                            <h3 class="subtitle is-6 mt-4">Level 1 Modules</h3>
+                            <table class="table is-fullwidth is-striped is-narrow is-hoverable">
+                                <thead>
+                                    <tr>
+                                        <th>Module</th>
+                                        <th>First Grade</th>
+                                        <th>Result</th>
+                                        <th>Resit Grade</th>
+                                        <th>Resit Result</th>
+                                        <th>Credits</th>
+                                        <th>Final Result</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% level1Stats.enrollments.forEach(e=> { %>
+                                        <% const finalResult=(e.resit_result && e.resit_result.trim() !=='' ) ?
+                                            e.resit_result : e.grade_result; %>
+                                            <% const isPass=finalResult==='pass' || finalResult==='pass capped' ; %>
+                                                <% const finalGrade=(finalResult==='pass capped' ) ? '40%' :
+                                                    (e.resit_grade !=null ? e.resit_grade + '%' : e.first_grade !=null ?
+                                                    e.first_grade + '%' : 'N/A' ); %>
+                                                    <tr>
+                                                        <td>
+                                                            <%= e.Module.module_title %> (<%= e.Module.subj_code %>
+                                                                    <%= e.Module.subj_catalog %>)
+                                                        </td>
+                                                        <td>
+                                                            <%= e.first_grade !=null ? e.first_grade + '%' : 'N/A' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= e.grade_result || 'N/A' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= e.resit_grade !=null ? e.resit_grade + '%' : 'N/A' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= e.resit_result || 'N/A' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= e.Module.credit_value %>
+                                                        </td>
+                                                        <td
+                                                            class="<%= isPass ? 'has-text-success' : 'has-text-danger' %>">
+                                                            <%= finalResult || 'Pending' %>
+                                                        </td>
+                                                    </tr>
+                                                    <% }) %>
+                                </tbody>
+                            </table>
+                            <% } else { %>
+                                <p>No Level 1 modules enrolled yet.</p>
+                                <% } %>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <header class="card-header">
+                    <p class="card-header-title">Level 2 Progression Status</p>
+                </header>
+                <div class="card-content">
+                    <div class="content">
+                        <% if (level2Stats.enrollments && level2Stats.enrollments.length> 0) { %>
+                            <p><strong>Decision:</strong>
+                                <%= level2Stats.levelDecision || 'No decision available' %>
+                            </p>
+                            <p><strong>Credits Earned:</strong>
+                                <%= level2Stats.totalCredits %> / <%= level2Stats.requiredCredits %>
+                            </p>
+                            <p><strong>Modules Passed:</strong>
+                                <%= level2Stats.modulesPassed %>
+                            </p>
+                            <p><strong>Modules Requiring Resit/Retry:</strong>
+                                <%= level2Stats.modulesRequiringResit || 0 %>
+                            </p>
+                            <p>
+                                <strong>Core Module Status:</strong>
+                                <span>
+                                    <%= level2Stats.allCorePassed ? 'Pass' : 'Fail' %>
+                                </span>
+                            </p>
+                            <% if (!level2Stats.allCorePassed && level2Stats.failedCore && level2Stats.failedCore.length > 0) { %>
+                                <p><strong>Failed Core Modules:</strong> <%= level2Stats.failedCore.join(', ') %></p>
+                            <% } %>
+                            <!-- End Core Module Status -->
+                            <h3 class="subtitle is-6 mt-4">Level 2 Modules</h3>
+                            <table class="table is-fullwidth is-striped is-narrow is-hoverable">
+                                <thead>
+                                    <tr>
+                                        <th>Module</th>
+                                        <th>First Grade</th>
+                                        <th>Result</th>
+                                        <th>Resit Grade</th>
+                                        <th>Resit Result</th>
+                                        <th>Credits</th>
+                                        <th>Final Result</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% level2Stats.enrollments.forEach(e=> { %>
+                                        <% const finalResult=(e.resit_result && e.resit_result.trim() !=='' ) ?
+                                            e.resit_result : e.grade_result; %>
+                                            <% const isPass=finalResult==='pass' || finalResult==='pass capped' ; %>
+                                                <% const finalGrade=(finalResult==='pass capped' ) ? '40%' :
+                                                    (e.resit_grade !=null ? e.resit_grade + '%' : e.first_grade !=null ?
+                                                    e.first_grade + '%' : 'N/A' ); %>
+                                                    <tr>
+                                                        <td>
+                                                            <%= e.Module.module_title %> (<%= e.Module.subj_code %>
+                                                                    <%= e.Module.subj_catalog %>)
+                                                        </td>
+                                                        <td>
+                                                            <%= e.first_grade !=null ? e.first_grade + '%' : 'N/A' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= e.grade_result || 'N/A' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= e.resit_grade !=null ? e.resit_grade + '%' : 'N/A' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= e.resit_result || 'N/A' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= e.Module.credit_value %>
+                                                        </td>
+                                                        <td
+                                                            class="<%= isPass ? 'has-text-success' : 'has-text-danger' %>">
+                                                            <%= finalResult || 'Pending' %>
+                                                        </td>
+                                                    </tr>
+                                                    <% }) %>
+                                </tbody>
+                            </table>
+                            <% } else { %>
+                                <p>No Level 2 modules enrolled yet.</p>
+                                <% } %>
+                    </div>
+                </div>
+            </div>
+            <div class="card mt-5">
+                <header class="card-header">
+                    <p class="card-header-title">Academic Rules</p>
+                </header>
+                <div class="card-content">
+                    <div class="content">
+                        <h4 class="subtitle is-5">Progression Requirements</h4>
+                        <ul>
+                            <li>Pass at least 100+ credits.</li>
+                            <li>Achieve a minimum pass mark of 40% in undergraduate pathway modules.</li>
+                            <li>Pass all core modules within the academic level.</li>
+                            <li>Each module has one resit opportunity at the end of each academic year.</li>
+                            <li>A second enrolment opportunity for a failed module will be allowed. Therefore, four attempts at passing a module are permitted.</li>
+                            <li>All level 01 modules (120 credits) must be passed to progress after level 02 (final year).</li>
+                            <li>Returned grade mark of 'excused' means they can resit the module at the next available opportunity and is not considered a fail.</li>
+                        </ul>
+                        
+                        <h4 class="subtitle is-5">Failure to Meet Progress Requirements</h4>
+                        <p>System progression decisions could include:</p>
+                        <ul>
+                            <li>Resit offered if module(s) result: failed/absence/excused.</li>
+                            <li>Repeating the year/level/stage as full-time or part-time.</li>
+                            <li>Withdrawal from the program/degree/pathway.</li>
+                            <li>Contacting the program/degree/pathway academic support officer (or University equivalent role).</li>
+                            <li>Complex cases and performance are referred to the pathway academic support officer (or University equivalent role) if system business logic cannot give an accurate progress report.</li>
+                        </ul>
+                        
+                        <h4 class="subtitle is-5">Successful Progress Requirements</h4>
+                        <p>System progression decisions could include:</p>
+                        <ul>
+                            <li>Resit offered if module result: failed/absence/excused.</li>
+                            <li>Success in progression into the next year/level/stage.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+<%- include('../partials/footer') %>

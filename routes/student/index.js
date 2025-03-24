@@ -1,10 +1,30 @@
 const express = require('express');
 const router = express.Router();
-const StudentController = require('../../controllers/StudentController');
-const { isAuthenticated } = require('../../middlewares/authMiddleware');
+const multer = require('multer');
+const upload = multer({ dest: 'public/uploads/' });
+const { isStudent } = require('../../middlewares/authMiddleware');
 
-// Student profile route
-router.get('/profile', isAuthenticated, StudentController.profile);
-router.post('/profile/update', isAuthenticated, StudentController.updateProfile);
+const ProfileController = require('../../controllers/StudentController/profile');
+const ProgressionController = require('../../controllers/StudentController/progression');
+const MessagesController = require('../../controllers/StudentController/messages');
+const DashboardController = require('../../controllers/StudentController/dashboard');
+
+// Dashboard as main page
+router.get('/dashboard', isStudent, DashboardController.dashboard);
+
+// Profile routes
+router.get('/profile', isStudent, ProfileController.profile); // Direct link to profile page
+
+// Profile update routes (used by dashboard/profile card)
+router.post('/profile/email', isStudent, ProfileController.updateSecondaryEmail);
+router.post('/profile/image', isStudent, upload.single('profileImage'), ProfileController.updateProfileImage);
+router.post('/profile/phone', isStudent, ProfileController.updatePhone);
+
+// Progression/statistics
+router.get('/progression', isStudent, ProgressionController.progression);
+
+// Messages/notifications
+router.get('/messages', isStudent, MessagesController.messages);
+router.post('/contact-advisor', isStudent, MessagesController.contactAdvisor);
 
 module.exports = router;

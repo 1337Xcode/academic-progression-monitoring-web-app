@@ -5,12 +5,11 @@ const session = require('express-session');
 const dotenv = require('dotenv');
 const csrf = require('csurf');
 const cookieParser = require('cookie-parser');
-const multer = require('multer');
 
 // Import security configuration
 const setupSecurity = require('./config/securityConfig');
 
-dotenv.config();
+dotenv.config(); // Load environment variables
 
 // Initialize express app
 const app = express();
@@ -26,11 +25,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // Session setup
 app.use(session({
-    name: "web_project_session",
-    secret: process.env.SESSION_SECRET || 'your_secret_key',
+    name: "apms_session", // Session name in the cookie
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: process.env.NODE_ENV === 'production' }
+    cookie: { secure: process.env.NODE_ENV === 'production' } // Secure cookie in production
 }));
 
 // View engine setup
@@ -39,17 +38,16 @@ app.set('view engine', 'ejs');
 
 // List of paths that should be exempt from CSRF protection
 const csrfExcludedPaths = [
-    '/admin/grades/upload'
+    '/admin/grades/upload',
+    '/student/profile/image',
+    '/api'
 ];
 
 // Custom CSRF middleware that excludes specific paths
 app.use((req, res, next) => {
-    // Skip CSRF for excluded paths
-    if (csrfExcludedPaths.includes(req.path)) {
+    if (csrfExcludedPaths.some(path => req.path.startsWith(path))) {
         return next();
     }
-    
-    // Apply CSRF protection for all other routes
     csrf({ cookie: false })(req, res, next);
 });
 
@@ -65,6 +63,7 @@ app.use((req, res, next) => {
 const adminRoutes = require('./routes/admin/index');
 const studentRoutes = require('./routes/student');
 const authRoutes = require('./routes/auth');
+const apiRoutes = require('./routes/api'); // Add this line to import API routes
 
 // Home route
 app.get('/', (req, res) => {
@@ -75,21 +74,28 @@ app.get('/', (req, res) => {
 app.use('/admin', adminRoutes);
 app.use('/student', studentRoutes);
 app.use('/auth', authRoutes);
+// app.use('/api', apiRoutes); // Add this line and comment the code below to use API routes without api key
 
-// Special route for CSRF debugging
-app.get('/check-csrf', (req, res) => {
-    res.send(`CSRF token: ${req.csrfToken ? req.csrfToken() : 'Not available'}`);
-});
-app.post('/check-csrf', (req, res) => {
-    res.send('CSRF validation successful');
-});
+// API key middleware for /api routes
+app.use('/api', (req, res, next) => {
+    const apiKey = req.headers['x-api-key'];
+    if (!apiKey || apiKey !== process.env.API_KEY) {
+        return res.status(401).json({ error: 'Unauthorized: Invalid or missing API key' });
+    }
+    next();
+}, apiRoutes); // Protect all /api routes
 
-// Error handling middleware
+
+// Error handling middleware for CSRF errors
 app.use((err, req, res, next) => {
     if (err.code === 'EBADCSRFTOKEN') {
         // Handle CSRF token errors
         console.error('CSRF Error:', req.method, req.path);
-        return res.status(403).send('CSRF token verification failed. Please try again.');
+        // Use the general error template for CSRF errors
+        return res.status(403).render('error', {
+            title: 'Security Error: CSRF Token Validation Failed',
+            message: 'Your form submission could not be processed due to a security check failure.'
+        });
     }
     next(err);
 });

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/header', { title: 'Messages' }) %>
+<section class="section">
+    <div class="container">
+        <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
+            <h1 class="title">Student Messaging Portal</h1>
+            <a href="/student/dashboard" class="button is-info">
+                <span class="icon">
+                    <i class="fas fa-home"></i>
+                </span>
+                <span>Back to Dashboard</span>
+            </a>
+        </div>
+        <div class="card mb-5">
+            <header class="card-header">
+                <p class="card-header-title">Messages from Administration</p>
+            </header>
+            <div class="card-content">
+                <% const adminMessages = notifications.filter(msg => msg.Sender && msg.Sender.role === 'ADMIN'); %>
+                <% if (adminMessages.length === 0) { %>
+                    <p class="has-text-centered">No messages from administrators.</p>
+                <% } else { %>
+                    <% adminMessages.forEach(msg => { %>
+                        <div class="message is-info mb-4">
+                            <div class="message-header">
+                                <p>Admin Message <%= msg.student_id ? '(Private)' : '(Everyone)' %></p>
+                                <small><%= msg.sent_at ? msg.sent_at.toLocaleString() : '' %></small>
+                            </div>
+                            <div class="message-body">
+                                <%= msg.message %>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } %>
+            </div>
+        </div>
+        <div class="card mb-5">
+            <header class="card-header">
+                <p class="card-header-title">Your Sent Messages</p>
+            </header>
+            <div class="card-content">
+                <% const sentMessages = notifications.filter(msg => msg.sender_id === studentUserId); %>
+                <% if (sentMessages.length === 0) { %>
+                    <p class="has-text-centered">You have not sent any messages.</p>
+                <% } else { %>
+                    <% sentMessages.forEach(msg => { %>
+                        <div class="message is-primary mb-4">
+                            <div class="message-header">
+                                <p>Your Message</p>
+                                <small><%= msg.sent_at ? msg.sent_at.toLocaleString() : '' %></small>
+                            </div>
+                            <div class="message-body">
+                                <%= msg.message %>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } %>
+            </div>
+        </div>
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">Contact Advisor of Studies</p>
+            </header>
+            <div class="card-content">
+                <form action="/student/contact-advisor" method="POST">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <div class="field">
+                        <label class="label">Your Message</label>
+                        <div class="control">
+                            <textarea class="textarea" name="message" required maxlength="65535" placeholder="Type your message to the advisor here..."></textarea>
+                        </div>
+                    </div>
+                    <div class="field mt-4">
+                        <div class="control">
+                            <button class="button is-primary is-fullwidth" type="submit">Send Message</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+<%- include('../partials/footer') %>

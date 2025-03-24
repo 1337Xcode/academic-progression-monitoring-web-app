@@ -1,4 +1,4 @@
-const { Student, User, Enrollment } = require('../../models'); // Import models
+const { Student, User, Enrollment, Notification } = require('../../models');
 const bcrypt = require('bcrypt'); // Ensure bcrypt is imported
 
 // # Note: Do better documentation before submitting the final project
@@ -100,10 +100,34 @@ exports.deleteStudent = async (req, res) => {
     const { studentId } = req.body;
     console.log(`Deleting student with ID: ${studentId}`);
     try {
-        const student = await Student.findOne({ where: { student_id: studentId } });
+        const student = await Student.findOne({ 
+            where: { student_id: studentId },
+            include: [{ model: User }]
+        });
+
         if (student) {
-            await Enrollment.destroy({ where: { student_id: student.student_id } }); // Delete related enrollments
+            // Get the user_id associated with this student
+            const userId = student.user_id;
+
+            // Delete notifications where student is the recipient
+            await Notification.destroy({ where: { student_id: studentId } });
+            
+            // Delete notifications sent by this student (using the user_id)
+            if (userId) {
+                await Notification.destroy({ where: { sender_id: userId } });
+            }
+            
+            // Delete related enrollments
+            await Enrollment.destroy({ where: { student_id: studentId } });
+            
+            // Delete the student
             await student.destroy();
+
+            // Delete the user account if it exists
+            if (userId) {
+                await User.destroy({ where: { user_id: userId } });
+            }
+
             res.redirect('/admin/manageStudents');
         } else {
             res.status(404).send('Student not found');

@@ -1,99 +1,45 @@
 const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
-const slowDown = require('express-slow-down');
 const cors = require('cors');
-const bodyParser = require('body-parser');
+const xss = require('xss-clean');
 
+// Security best practices implemented per OWASP Top Ten: https://owasp.org/www-project-top-ten/
+
+// - Helmet for HTTP headers (A05:2021 Security Misconfiguration)
 function setupSecurity(app) {
-    // CSP violation reporting endpoint - exempt from CSRF
-    app.post('/csp-violation-report', bodyParser.json({
-        type: ['json', 'application/csp-report']
-    }), (req, res) => {
-        console.log('CSP Violation:', req.body); // comment out in production
-        res.status(204).end();
-    });
-
-    // Basic security headers with helmet
-    app.use(helmet({
-        contentSecurityPolicy: {
-            directives: {
-                defaultSrc: ["'self'"],
-                scriptSrc: [
-                    "'self'",
-                    "https://www.google.com",
-                    "https://www.gstatic.com",
-                    "https://www.google.com/recaptcha/",
-                    "https://www.gstatic.com/recaptcha/",
-                    "'unsafe-inline'"
-                ],
-                styleSrc: [
-                    "'self'", 
-                    "https://fonts.googleapis.com", 
-                    "https://cdnjs.cloudflare.com", 
-                    "'unsafe-inline'"
-                ],
-                fontSrc: [
-                    "'self'", 
-                    "https://fonts.gstatic.com", 
-                    "https://cdnjs.cloudflare.com",
-                    "data:"
-                ],
-                imgSrc: ["'self'", "data:", "https://www.google.com", "https://www.gstatic.com"],
-                connectSrc: ["'self'", "https://www.google.com", "https://www.gstatic.com"],
-                objectSrc: ["'none'"],
-                frameSrc: ["https://www.google.com", "https://www.google.com/recaptcha/"],
-                upgradeInsecureRequests: [],
-                reportUri: '/csp-violation-report',
-            }
-        },
-        crossOriginEmbedderPolicy: false
-    }));
-
-    // Additional security headers
-    app.use((req, res, next) => {
-        res.setHeader('X-Content-Type-Options', 'nosniff');
-        res.setHeader('X-XSS-Protection', '1; mode=block');
-        res.setHeader('X-Frame-Options', 'SAMEORIGIN');
-        next();
-    });
-
-    // Configure CORS
+    // Setup cors for cross-origin requests (remove if api not working)
     const corsOptions = {
-        origin: true,
+        origin: process.env.CORS_ORIGIN || '*',
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
         credentials: true,
-        methods: ['GET', 'POST', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization']
+        optionsSuccessStatus: 200
     };
     app.use(cors(corsOptions));
-    app.options('*', cors(corsOptions));
 
+    // set up helmet for basic security headers and disable CSP
+    app.use(helmet({
+        contentSecurityPolicy: false,
+        crossOriginEmbedderPolicy: false,
+        crossOriginResourcePolicy: false
+    }));
+
+    // Prevent XSS attacks
+    app.use(xss());
+
+    // Enable compression for better performance
     app.use(compression());
 
-    // Rate limiting
+    // Rate limiting - critical for preventing brute force attacks
     const limiter = rateLimit({
-        windowMs: 15 * 60 * 1000,
-        max: 100,
-        standardHeaders: true,
-        legacyHeaders: false
+        windowMs: 15 * 60 * 1000, // 15 minutes
+        max: 100, // Limit each IP to 100 requests per window,
+        standardHeaders: true
     });
-    app.use(limiter);
 
-    // Speed limiter
-    const speedLimiter = slowDown({
-        windowMs: 15 * 60 * 1000,
-        delayAfter: 50,
-        delayMs: () => 250
-    });
-    app.use(speedLimiter);
-
-    // Cache control for static assets
-    app.use((req, res, next) => {
-        if (req.url.startsWith('/public')) {
-            res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 year (365*24*60*60)
-        }
-        next();
-    });
+    // Apply rate limiting to auth endpoints
+    app.use('/auth', limiter);
 }
 
 module.exports = setupSecurity;

@@ -32,7 +32,12 @@
                 <div class="field">
                     <label class="label" for="entryLevel">Entry Level:</label>
                     <div class="control">
-                        <input class="input" type="text" id="entryLevel" name="entryLevel" value="<%= student.entry_level %>" required>
+                        <div class="select">
+                            <select id="entryLevel" name="entryLevel" required>
+                                <option value="L1" <%= student.entry_level === 'L1' ? 'selected' : '' %>>L1</option>
+                                <option value="L2" <%= student.entry_level === 'L2' ? 'selected' : '' %>>L2</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="field">
@@ -44,7 +49,12 @@
                 <div class="field">
                     <label class="label" for="statusStudy">Status of Study:</label>
                     <div class="control">
-                        <input class="input" type="text" id="statusStudy" name="statusStudy" value="<%= student.status_study %>" required>
+                        <div class="select">
+                            <select id="statusStudy" name="statusStudy" required>
+                                <option value="F" <%= student.status_study === 'F' ? 'selected' : '' %>>Full-time</option>
+                                <option value="P" <%= student.status_study === 'P' ? 'selected' : '' %>>Part-time</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="control">

@@ -40,6 +40,16 @@ const Student = sequelize.define('Student', {
     },
     status_study: {
         type: DataTypes.STRING
+    },
+    // The following columns will be added once the migration script is run
+    secondary_email: {
+        type: DataTypes.STRING
+    },
+    phone: {
+        type: DataTypes.STRING
+    },
+    profile_image: {
+        type: DataTypes.STRING
     }
 }, {
     tableName: 'students',
