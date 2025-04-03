@@ -29,7 +29,7 @@ app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: process.env.NODE_ENV === 'production' } // Secure cookie in production
+    cookie: { secure: false } // Secure cookie in production
 }));
 
 // View engine setup

@@ -1,6 +1,3 @@
-// # Note: Make a ejs file in views folder for respective error types
-// Fix the error handling to be more nformative and implement a global error handler.
-
 /**
  * Handle 404 errors
  */
@@ -39,8 +36,7 @@ exports.internalServerError = (err, req, res, next) => {
     if (err.code === 'EBADCSRFTOKEN') {
         return res.status(403).render('error', {
             title: 'CSRF Error',
-            message: 'Invalid CSRF token. Please try again.',
-            error: process.env.NODE_ENV === 'development' ? err : {}
+            message: 'Invalid CSRF token. Please try again.'
         });
     }
 
@@ -48,7 +44,6 @@ exports.internalServerError = (err, req, res, next) => {
     res.status(statusCode);
     res.render('error', {
         title: 'Error',
-        message: err.message,
-        error: process.env.NODE_ENV === 'development' ? err : {}
+        message: err.message
     });
 };

@@ -1,0 +1,39 @@
+<%- include('../partials/header', { title: 'My Enrollments' }) %>
+<section class="section">
+    <div class="container">
+        <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
+            <h1 class="title">Enrollments</h1>
+            <a href="/student/dashboard" class="button is-info">
+                <span class="icon">
+                    <i class="fas fa-home"></i>
+                </span>
+                <span>Back to Dashboard</span>
+            </a>
+        </div>
+        <% if (enrollments && enrollments.length > 0) { %>
+            <table class="table is-fullwidth is-striped">
+                <thead>
+                    <tr>
+                        <th>Module Code</th>
+                        <th>Module Name</th>
+                        <th>Pathway Code</th>
+                        <th>Credits</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% enrollments.forEach(function(enrollment) { %>
+                        <tr>
+                            <td><%= enrollment.Module.subj_code %><%= enrollment.Module.subj_catalog %></td>
+                            <td><%= enrollment.Module.module_title %></td>
+                            <td><%= enrollment.Module.pathway_code %></td>
+                            <td><%= enrollment.Module.credit_value %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <p>No enrollments found.</p>
+        <% } %>
+    </div>
+</section>
+<%- include('../partials/footer') %>

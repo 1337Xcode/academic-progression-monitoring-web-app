@@ -8,6 +8,7 @@ const ProfileController = require('../../controllers/StudentController/profile')
 const ProgressionController = require('../../controllers/StudentController/progression');
 const MessagesController = require('../../controllers/StudentController/messages');
 const DashboardController = require('../../controllers/StudentController/dashboard');
+const EnrollmentsController = require('../../controllers/StudentController/enrollments');
 
 // Dashboard as main page
 router.get('/dashboard', isStudent, DashboardController.dashboard);
@@ -26,5 +27,8 @@ router.get('/progression', isStudent, ProgressionController.progression);
 // Messages/notifications
 router.get('/messages', isStudent, MessagesController.messages);
 router.post('/contact-advisor', isStudent, MessagesController.contactAdvisor);
+
+// Enrolled modules list
+router.get('/enrollments', isStudent, EnrollmentsController.list);
 
 module.exports = router;
