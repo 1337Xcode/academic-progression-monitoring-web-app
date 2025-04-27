@@ -45,21 +45,5 @@
         </form>
     </div>
 </div>
-<script>
-    document.getElementById("login-form").addEventListener("submit", function(event) {
-        event.preventDefault();
-        console.log("Form submission intercepted. Initiating reCAPTCHA token generation...");
-        grecaptcha.ready(function() {
-            grecaptcha.execute('6Le5GeYqAAAAAEZTAg_czNZeKJgqTyi8ReTc1Dha', {action: 'LOGIN'})
-            .then(function(token) {
-                console.log("reCAPTCHA token:", token);
-                document.getElementById('recaptchaResponse').value = token;
-                event.target.submit();
-            })
-            .catch(function(error) {
-                console.error("Error generating reCAPTCHA token:", error);
-            });
-        });
-    });
-</script>
+<script src="/js/reCAPTCHA.js"></script>
 <%- include('../partials/footer') %>

@@ -1,0 +1,117 @@
+<%- include('../../partials/header', { title: 'Edit Progression Rules' }) %>
+<section class="section">
+    <div class="container">
+        <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
+            <h1 class="title">Edit Progression Rules</h1>
+            <a href="/admin/manageProgression" class="button is-link">
+                <span class="icon">
+                    <i class="fas fa-arrow-left"></i>
+                </span>
+                <span>Back to Manage Progression</span>
+            </a>
+        </div>
+        <% const page = 'manageProgression'; %>
+        <%- include('../../partials/navbar', { page: page }) %>
+
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="notification is-success is-light"><%= success %></div>
+        <% } %>
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="notification is-danger is-light"><%= error %></div>
+        <% } %>
+
+        <!-- Add New Rule Form -->
+        <div class="box mb-5">
+            <h2 class="title is-4">Add New Progression Rule</h2>
+            <form action="/admin/progression/add" method="post">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <div class="field is-horizontal">
+                    <div class="field-body">
+                        <div class="field">
+                            <label class="label" for="programme_code">Programme Code</label>
+                            <div class="control">
+                                <input class="input" type="text" id="programme_code" name="programme_code" required maxlength="20">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label" for="min_pass_mark">Min Pass Mark (%)</label>
+                            <div class="control">
+                                <input class="input" type="number" id="min_pass_mark" name="min_pass_mark" step="0.01" min="0" max="100" value="40.00" required>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label" for="min_avg_grade">Min Average Grade (%)</label>
+                            <div class="control">
+                                <input class="input" type="number" id="min_avg_grade" name="min_avg_grade" step="0.01" min="0" max="100" value="40.00" required>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label" for="total_credits_required">Credits Required</label>
+                            <div class="control">
+                                <input class="input" type="number" id="total_credits_required" name="total_credits_required" min="0" value="100" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="compulsory_modules">Compulsory Modules (CSV)</label>
+                    <div class="control">
+                        <input class="input" type="text" id="compulsory_modules" name="compulsory_modules" placeholder="e.g., IFSY259,IFSY240">
+                    </div>
+                    <p class="help">Comma-separated list of module codes (e.g., SUBJ101,SUBJ102)</p>
+                </div>
+                <div class="control">
+                    <button class="button is-primary" type="submit">Add Rule</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Existing Rules Table -->
+        <h2 class="title is-4">Existing Rules</h2>
+        <table class="table is-fullwidth is-striped is-hoverable">
+            <thead>
+                <tr>
+                    <th>Programme Code</th>
+                    <th>Min Pass Mark</th>
+                    <th>Min Avg Grade</th>
+                    <th>Credits Required</th>
+                    <th>Compulsory Modules</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (rules && rules.length > 0) { %>
+                    <% rules.forEach(rule => { %>
+                        <tr id="rule-<%= rule.rule_id %>">
+                            <form action="/admin/progression/update?page=<%= currentPage %>" method="post">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                <input type="hidden" name="rule_id" value="<%= rule.rule_id %>">
+                                <td><%= rule.programme_code %></td>
+                                <td><input class="input is-small" type="number" name="min_pass_mark" value="<%= rule.min_pass_mark %>" step="0.01" min="0" max="100" required></td>
+                                <td><input class="input is-small" type="number" name="min_avg_grade" value="<%= rule.min_avg_grade %>" step="0.01" min="0" max="100" required></td>
+                                <td><input class="input is-small" type="number" name="total_credits_required" value="<%= rule.total_credits_required %>" min="0" required></td>
+                                <td><input class="input is-small" type="text" name="compulsory_modules" value="<%= rule.compulsory_modules || '' %>"></td>
+                                <td>
+                                    <button class="button is-success is-small" type="submit">Update</button>
+                            </form>
+                            <form action="/admin/progression/delete?page=<%= currentPage %>" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this rule?');">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                <input type="hidden" name="rule_id" value="<%= rule.rule_id %>">
+                                <button class="button is-danger is-small" type="submit">Delete</button>
+                            </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="6">No progression rules found.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+
+        <%- include('../../partials/page', { totalPages, currentPage, baseUrl: '/admin/manageProgression/edit' }) %>
+
+    </div>
+</section>
+<%- include('../../partials/footer') %>

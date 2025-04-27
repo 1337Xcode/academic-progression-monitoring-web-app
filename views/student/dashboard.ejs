@@ -3,6 +3,21 @@
 <%- include('../partials/header', { title: 'Student Dashboard' }) %>
     <section class="section">
         <div class="container">
+            <% if (latestGlobalNotification) { %>
+                <div class="card mb-4" style="border-left: 5px solid #209cee; background: #f6fbff;">
+                    <header class="card-header" style="background: #e3f2fd;">
+                        <p class="card-header-title" style="color: #209cee;">
+                            <i class="fas fa-bullhorn mr-2"></i> Announcement from Administration
+                        </p>
+                    </header>
+                    <div class="card-content">
+                        <div class="is-flex is-justify-content-space-between is-align-items-center">
+                            <span><%= latestGlobalNotification.message %></span>
+                            <small style="color:#888;"><%= latestGlobalNotification.sent_at ? new Date(latestGlobalNotification.sent_at).toLocaleString() : '' %></small>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
             <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
                 <h1 class="title">Student Dashboard</h1>
             </div>

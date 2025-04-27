@@ -1,116 +1,139 @@
-const { Enrollment, Student, Module } = require('../../models'); // Import models
+const apiClient = require('../../utils/apiClient');
 const csv = require('csv-parser');
 const fs = require('fs');
+const { Student, Module } = require('../../models');
 
-// Render the manageGrades page with student grades and pagination based on individual students
+// Render the manageGrades page with student grades and pagination via API
 exports.manageGrades = async (req, res) => {
-    // pagination reference: https://stackoverflow.com/questions/38211170/sequelize-pagination
-    const page = parseInt(req.query.page) || 1; // Current page number
-    const limit = 1; // Number of students per page
-    const offset = (page - 1) * limit; // Offset for pagination calculation (page 1: 0, page 2: 1, page 3: 2, etc.)
+    const page = parseInt(req.query.page) || 1;
+    const limit = 1;
 
     try {
-        const students = await Student.findAndCountAll({
-            limit, // Limit number of students per page
-            offset, // Offset for pagination
-            order: [['student_id', 'ASC']] // Order by student ID
-        });
+        // Step 1: Fetch one student based on pagination
+        const studentData = await apiClient.get('/students', { page, limit });
 
-        const totalPages = Math.ceil(students.count / limit);
-
-        if (students.rows.length === 0) {
-            return res.render('admin/manageGrades/grades', { enrollments: [], totalPages, currentPage: page });
+        let enrollments = [];
+        if (studentData.students && studentData.students.length > 0) {
+            const studentId = studentData.students[0].student_id;
+            // Step 2: Fetch enrollments (grades) for that student
+            enrollments = await apiClient.get('/grades', { student_id: studentId });
         }
-
-        const enrollments = await Enrollment.findAll({
-            where: { student_id: students.rows[0].student_id },
-            include: [
-                { model: Student, attributes: ['first_name', 'last_name', 'sId'] }, // Include student details in the query
-                { model: Module, attributes: ['module_title', 'subj_code', 'subj_catalog'] } // Include module details in the query
-            ]
+        // Step 3: Render the page with the fetched data
+        res.render('admin/manageGrades/grades', {
+            enrollments,
+            totalPages: studentData.totalPages,
+            currentPage: studentData.currentPage
         });
-
-        res.render('admin/manageGrades/grades', { enrollments, totalPages, currentPage: page }); // Render the manageGrades page with student grades
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Error fetching grades');
+        console.error('Error fetching grades via API:', error);
+        res.status(error.status || 500).send(error.message || 'Error fetching grades');
     }
 };
 
-// Render the uploadGrades page to upload student grades via CSV file
+// Render the uploadGrades page
 exports.uploadGradesPage = (req, res) => {
-    // Ensure the CSRF token is passed to the view
     res.render('admin/manageGrades/uploadGrades', { csrfToken: req.csrfToken() });
 };
 
-// Update student grades by enrollment ID
+// Update student grades by enrollment ID via API
 exports.updateGrade = async (req, res) => {
     const { enrollmentId, firstGrade, gradeResult, resitGrade, resitResult } = req.body;
     try {
-        const enrollment = await Enrollment.findOne({ where: { enrollment_id: enrollmentId } }); // Find enrollment by ID
-        if (enrollment) {
-            await enrollment.update({
-                first_grade: firstGrade, // Update first grade
-                grade_result: gradeResult, // Update grade result
-                resit_grade: resitGrade || null, // Update resit grade, default to null if empty
-                resit_result: resitResult || null // Update resit result, default to null if empty
-            });
-            res.redirect('/admin/manageGrades');
-        } else {
-            res.status(404).send('Enrollment not found');
-        }
+        const payload = {
+            first_grade: firstGrade,
+            grade_result: gradeResult,
+            resit_grade: resitGrade || null,
+            resit_result: resitResult || null
+        };
+        // Remove undefined fields
+        Object.keys(payload).forEach(key => payload[key] === undefined && delete payload[key]);
+
+        await apiClient.put(`/grades/${enrollmentId}`, payload);
+        res.redirect('/admin/manageGrades'); // Consider redirecting to the same page
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Error updating grade');
+        console.error('Error updating grade via API:', error);
+        res.status(error.status || 500).send(`Error updating grade: ${error.message}`);
     }
 };
 
-// Delete student grades by enrollment ID
+// Delete student grades by enrollment ID via API
 exports.deleteGrade = async (req, res) => {
     const { enrollmentId } = req.body;
     try {
-        const enrollment = await Enrollment.findOne({ where: { enrollment_id: enrollmentId } }); // Find enrollment by ID
-        if (enrollment) {
-            await enrollment.destroy(); // Delete enrollment from database
-            res.status(200).send('Enrollment deleted successfully');
-        } else {
-            res.status(404).send('Enrollment not found');
-        }
+        await apiClient.del(`/grades/${enrollmentId}`);
+        res.status(200).send('Enrollment deleted successfully'); // For AJAX
     } catch (error) {
-        console.error('Error deleting enrollment:', error);
-        res.status(500).send('Error deleting enrollment');
+        console.error('Error deleting enrollment via API:', error);
+        res.status(error.status || 500).send(`Error deleting enrollment: ${error.message}`); // For AJAX
     }
 };
 
-// Upload student grades via CSV file
+// Upload student grades via CSV file using API calls
+// Reference: https://www.npmjs.com/package/csv-parser
 exports.uploadGrades = async (req, res) => {
-    const results = [];
-    fs.createReadStream(req.file.path)
-        .pipe(csv())
-        .on('data', (row) => {
-            results.push(row);
-        })
-        .on('end', async () => {
-            try {
-                for (const row of results) {
-                    const student = await Student.findOne({ where: { sId: row.sId } }); // Find student by student ID (sId)
-                    const module = await Module.findOne({ where: { subj_code: row.subjCode, subj_catalog: row.subjCatalog } }); // Find module by subject code and catalog number
-                    if (student && module) {
-                        await Enrollment.create({ // Create new enrollment record
-                            student_id: student.student_id,
-                            module_id: module.module_id,
-                            first_grade: row.firstGrade,
-                            grade_result: row.gradeResult,
-                            resit_grade: row.resitGrade || null,
-                            resit_result: row.resitResult || null,
-                            attempt_count: row.attemptCount || 1
-                        });
-                    }
-                }
-                res.redirect('/admin/manageGrades');
-            } catch (error) {
-                console.error(error);
-                res.status(500).send('Error uploading grades');
-            }
+    if (!req.file) {
+        return res.status(400).send('No file uploaded.');
+    }
+
+    const filePath = req.file.path;
+    const errors = [];
+    let successCount = 0;
+
+    // Helper to parse CSV into an array of rows
+    const parseCSV = (path) =>
+        new Promise((resolve, reject) => {
+            const rows = [];
+            fs.createReadStream(path)
+                .pipe(csv())
+                .on('data', row => rows.push(row))
+                .on('end', () => resolve(rows))
+                .on('error', reject);
         });
+
+    try {
+        const rows = await parseCSV(filePath);
+
+        for (const [idx, row] of rows.entries()) { // Use for..of to get index
+            // Validate required fields
+            const rowNum = idx + 1;
+            try {
+                const student = await Student.findOne({ where: { sId: row.sId } });
+                const module = await Module.findOne({
+                    where: {
+                        subj_code: row.subjCode,
+                        subj_catalog: row.subjCatalog
+                    }
+                });
+                // Check if student and module exist
+                if (!student || !module) {
+                    errors.push(`Row ${rowNum}: Missing student or module.`);
+                    continue;
+                }
+                await apiClient.post('/grades', {
+                    student_id: student.student_id,
+                    module_id: module.module_id,
+                    first_grade: row.firstGrade,
+                    grade_result: row.gradeResult,
+                    resit_grade: row.resitGrade || null,
+                    resit_result: row.resitResult || null,
+                    attempt_count: row.attemptCount || 1
+                });
+
+                successCount++;
+            } catch (e) {
+                errors.push(`Row ${rowNum}: ${e.message}`);
+            }
+        }
+        // Check if any errors occurred
+        if (errors.length) {
+            console.error('CSV upload errors:', errors);
+            return res.status(500).send('Some grades could not be uploaded.');
+        }
+        res.redirect('/admin/manageGrades');
+    } catch (e) {
+        console.error('Error processing CSV file:', e);
+        res.status(500).send('Error uploading grades.');
+    } finally {
+        fs.unlink(filePath, () => {}); // clean up temp file
+    }
 };

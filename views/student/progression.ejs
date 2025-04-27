@@ -52,38 +52,36 @@
                                 </thead>
                                 <tbody>
                                     <% level1Stats.enrollments.forEach(e=> { %>
-                                        <% const finalResult=(e.resit_result && e.resit_result.trim() !=='' ) ?
-                                            e.resit_result : e.grade_result; %>
-                                            <% const isPass=finalResult==='pass' || finalResult==='pass capped' ; %>
-                                                <% const finalGrade=(finalResult==='pass capped' ) ? '40%' :
-                                                    (e.resit_grade !=null ? e.resit_grade + '%' : e.first_grade !=null ?
-                                                    e.first_grade + '%' : 'N/A' ); %>
-                                                    <tr>
-                                                        <td>
-                                                            <%= e.Module.module_title %> (<%= e.Module.subj_code %>
-                                                                    <%= e.Module.subj_catalog %>)
-                                                        </td>
-                                                        <td>
-                                                            <%= e.first_grade !=null ? e.first_grade + '%' : 'N/A' %>
-                                                        </td>
-                                                        <td>
-                                                            <%= e.grade_result || 'N/A' %>
-                                                        </td>
-                                                        <td>
-                                                            <%= e.resit_grade !=null ? e.resit_grade + '%' : 'N/A' %>
-                                                        </td>
-                                                        <td>
-                                                            <%= e.resit_result || 'N/A' %>
-                                                        </td>
-                                                        <td>
-                                                            <%= e.Module.credit_value %>
-                                                        </td>
-                                                        <td
-                                                            class="<%= isPass ? 'has-text-success' : 'has-text-danger' %>">
-                                                            <%= finalResult || 'Pending' %>
-                                                        </td>
-                                                    </tr>
-                                                    <% }) %>
+                                        <% const isPass = e.calculatedFinalResult === 'Pass' || e.calculatedFinalResult === 'Pass Capped'; %>
+                                        <% const isFail = e.calculatedFinalResult === 'Fail'; %>
+                                        <% const isExcused = e.calculatedFinalResult === 'Excused'; %>
+                                        <% const isAbsent = e.calculatedFinalResult === 'Absent'; %>
+                                        <% const resultClass = isPass ? 'has-text-success' : (isFail ? 'has-text-danger' : (isExcused ? 'has-text-info' : (isAbsent ? 'has-text-grey' : ''))); %>
+                                        <tr>
+                                            <td>
+                                                <%= e.Module.module_title %> (<%= e.Module.subj_code %>
+                                                        <%= e.Module.subj_catalog %>)
+                                            </td>
+                                            <td>
+                                                <%= e.first_grade !=null ? e.first_grade + '%' : 'N/A' %>
+                                            </td>
+                                            <td>
+                                                <%= e.grade_result || 'N/A' %>
+                                            </td>
+                                            <td>
+                                                <%= e.resit_grade !=null ? e.resit_grade + '%' : 'N/A' %>
+                                            </td>
+                                            <td>
+                                                <%= e.resit_result || 'N/A' %>
+                                            </td>
+                                            <td>
+                                                <%= e.Module.credit_value %>
+                                            </td>
+                                            <td class="<%= resultClass %>">
+                                                <%= e.calculatedFinalResult || 'Pending' %>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
                                 </tbody>
                             </table>
                             <% } else { %>
@@ -102,6 +100,11 @@
                             <p><strong>Decision:</strong>
                                 <%= level2Stats.levelDecision || 'No decision available' %>
                             </p>
+                            <% if (!overallProgressionDecision.includes('Complex case')) { %>
+                                <p><strong>Average (%):</strong> <%= typeof level2Stats.averagePercentage === 'number' ? level2Stats.averagePercentage.toFixed(2) : 'N/A' %></p>
+                            <% } else { %>
+                                <p><strong>Average (%):</strong> N/A (Complex Case)</p>
+                            <% } %>
                             <p><strong>Credits Earned:</strong>
                                 <%= level2Stats.totalCredits %> / <%= level2Stats.requiredCredits %>
                             </p>
@@ -113,7 +116,7 @@
                             </p>
                             <p>
                                 <strong>Core Module Status:</strong>
-                                <span>
+                                <span class="<%= level2Stats.allCorePassed ? 'has-text-success' : 'has-text-danger' %>">
                                     <%= level2Stats.allCorePassed ? 'Pass' : 'Fail' %>
                                 </span>
                             </p>
@@ -135,38 +138,36 @@
                                 </thead>
                                 <tbody>
                                     <% level2Stats.enrollments.forEach(e=> { %>
-                                        <% const finalResult=(e.resit_result && e.resit_result.trim() !=='' ) ?
-                                            e.resit_result : e.grade_result; %>
-                                            <% const isPass=finalResult==='pass' || finalResult==='pass capped' ; %>
-                                                <% const finalGrade=(finalResult==='pass capped' ) ? '40%' :
-                                                    (e.resit_grade !=null ? e.resit_grade + '%' : e.first_grade !=null ?
-                                                    e.first_grade + '%' : 'N/A' ); %>
-                                                    <tr>
-                                                        <td>
-                                                            <%= e.Module.module_title %> (<%= e.Module.subj_code %>
-                                                                    <%= e.Module.subj_catalog %>)
-                                                        </td>
-                                                        <td>
-                                                            <%= e.first_grade !=null ? e.first_grade + '%' : 'N/A' %>
-                                                        </td>
-                                                        <td>
-                                                            <%= e.grade_result || 'N/A' %>
-                                                        </td>
-                                                        <td>
-                                                            <%= e.resit_grade !=null ? e.resit_grade + '%' : 'N/A' %>
-                                                        </td>
-                                                        <td>
-                                                            <%= e.resit_result || 'N/A' %>
-                                                        </td>
-                                                        <td>
-                                                            <%= e.Module.credit_value %>
-                                                        </td>
-                                                        <td
-                                                            class="<%= isPass ? 'has-text-success' : 'has-text-danger' %>">
-                                                            <%= finalResult || 'Pending' %>
-                                                        </td>
-                                                    </tr>
-                                                    <% }) %>
+                                        <% const isPass = e.calculatedFinalResult === 'Pass' || e.calculatedFinalResult === 'Pass Capped'; %>
+                                        <% const isFail = e.calculatedFinalResult === 'Fail'; %>
+                                        <% const isExcused = e.calculatedFinalResult === 'Excused'; %>
+                                        <% const isAbsent = e.calculatedFinalResult === 'Absent'; %>
+                                        <% const resultClass = isPass ? 'has-text-success' : (isFail ? 'has-text-danger' : (isExcused ? 'has-text-info' : (isAbsent ? 'has-text-grey' : ''))); %>
+                                        <tr>
+                                            <td>
+                                                <%= e.Module.module_title %> (<%= e.Module.subj_code %>
+                                                        <%= e.Module.subj_catalog %>)
+                                            </td>
+                                            <td>
+                                                <%= e.first_grade !=null ? e.first_grade + '%' : 'N/A' %>
+                                            </td>
+                                            <td>
+                                                <%= e.grade_result || 'N/A' %>
+                                            </td>
+                                            <td>
+                                                <%= e.resit_grade !=null ? e.resit_grade + '%' : 'N/A' %>
+                                            </td>
+                                            <td>
+                                                <%= e.resit_result || 'N/A' %>
+                                            </td>
+                                            <td>
+                                                <%= e.Module.credit_value %>
+                                            </td>
+                                            <td class="<%= resultClass %>">
+                                                <%= e.calculatedFinalResult || 'Pending' %>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
                                 </tbody>
                             </table>
                             <% } else { %>
@@ -214,3 +215,4 @@
         </div>
     </section>
 <%- include('../partials/footer') %>
+</html>

@@ -1,0 +1,59 @@
+<%- include('../../partials/header', { title: 'Sent' }) %>
+<section class="section">
+    <div class="container">
+        <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
+            <h1 class="title is-4 mb-0">Sent</h1>
+            <a href="/admin/dashboard" class="button is-info">
+                <span class="icon"><i class="fas fa-home"></i></span>
+                <span>Back to Dashboard</span>
+            </a>
+        </div>
+        <div class="buttons mb-4">
+            <a class="button is-light" href="/admin/manageMessages/inbox">Inbox</a>
+            <a class="button is-info" href="/admin/manageMessages/sent">Sent</a>
+            <a class="button is-light" href="/admin/manageMessages/compose">Compose</a>
+        </div>
+        <div class="box">
+            <%
+                const start = ((currentPage || 1) - 1) * 10;
+                const end = start + 10;
+                const adminMessages = notifications.filter(m => m.Sender.role === 'ADMIN').slice(start, end);
+            %>
+            <% if (!adminMessages.length) { %>
+                <p>No sent messages.</p>
+            <% } else { %>
+                <table class="table is-fullwidth is-striped">
+                    <thead>
+                        <tr>
+                            <th>Recipient</th>
+                            <th>Message</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <% adminMessages.forEach(msg => { %>
+                        <tr>
+                            <td>
+                                <% if (!msg.student_id) { %>
+                                    <i class="fas fa-bullhorn"></i> All Students
+                                <% } else if (msg.Student?.first_name) { %>
+                                    <%= msg.Student.first_name %>
+                                    <% if (msg.Student.sId) { %>
+                                        (<%= msg.Student.sId %>)
+                                    <% } %>
+                                <% } else { %>
+                                    Student ID: <%= msg.student_id %>
+                                <% } %>
+                            </td>
+                            <td><%= msg.message %></td>
+                            <td><%= msg.sent_at?.toLocaleString() || '' %></td>
+                        </tr>
+                    <% }) %>
+                    </tbody>
+                </table>
+                <%- include('../../partials/page', { totalPages, currentPage }) %>
+            <% } %>
+        </div>
+    </div>
+</section>
+<%- include('../../partials/footer') %>

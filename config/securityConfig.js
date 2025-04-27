@@ -5,8 +5,6 @@ const cors = require('cors');
 const xss = require('xss-clean');
 
 // Security best practices implemented per OWASP Top Ten: https://owasp.org/www-project-top-ten/
-
-// - Helmet for HTTP headers (A05:2021 Security Misconfiguration)
 function setupSecurity(app) {
     // Setup cors for cross-origin requests (remove if api not working)
     const corsOptions = {

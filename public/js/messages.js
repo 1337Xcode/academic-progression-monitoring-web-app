@@ -1,7 +1,8 @@
+// This script handles the tab switching functionality for the messages page.
 document.addEventListener('DOMContentLoaded', function() {
     const tabs = document.querySelectorAll('#message-tabs li');
     
-    tabs.forEach(tab => {
+    tabs.forEach(tab => { // for each tab, add a click event listener
         tab.addEventListener('click', () => {
             tabs.forEach(t => t.classList.remove('is-active'));
             tab.classList.add('is-active');

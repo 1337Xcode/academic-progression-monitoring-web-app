@@ -1,42 +1,43 @@
-const { Student, User, Enrollment, Notification } = require('../../models');
-const bcrypt = require('bcrypt'); // Ensure bcrypt is imported
-
-// # Note: Do better documentation before submitting the final project
+const apiClient = require('../../utils/apiClient');
 
 // Render the manageStudents page with pagination
-exports.manageStudents = async (req, res) => { // Same stuff as the manageModules function
+exports.manageStudents = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
-    const limit = 15; // Number of students per page
-    const offset = (page - 1) * limit;
+    const limit = 15;
 
     try {
-        const { count, rows: students } = await Student.findAndCountAll({
-            include: [{ model: User, attributes: ['username', 'email'] }],
-            limit,
-            offset
+        const data = await apiClient.get('/students', { page, limit });
+        res.render('admin/manageStudents/student', {
+            students: data.students,
+            totalPages: data.totalPages,
+            currentPage: data.currentPage
         });
-
-        const totalPages = Math.ceil(count / limit);
-
-        res.render('admin/manageStudents/student', { students, totalPages, currentPage: page });
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Error fetching students');
+        console.error('Error fetching students via API:', error);
+        res.status(error.status || 500).send(error.message || 'Error fetching students');
     }
 };
 
 // Add a new student
 exports.addStudent = async (req, res) => {
     const { firstName, lastName, studentId, programmeId, entryLevel, acadYr, statusStudy } = req.body;
+    let createdUserId;
+
     try {
-        const user = await User.create({
-            username: `${firstName}${studentId.slice(-7)}`,
-            email: `${firstName}${studentId.slice(-7)}@gmail.com`,
-            password_hash: bcrypt.hashSync(`${firstName}${studentId.slice(-7)}`, 10),
+        // Step 1: Create the User via API
+        const userPassword = `${firstName}${studentId.slice(-7)}`;
+        const userPayload = {
+            username: `${firstName}${studentId.slice(-7)}`, // Slice to get last 7 digits of studentId
+            email: `${firstName}${studentId.slice(-7)}@gmail.com`, // email...
+            password: userPassword, // API handles hashing
             role: 'STUDENT'
-        });
-        await Student.create({
-            user_id: user.user_id,
+        };
+        const newUser = await apiClient.post('/users', userPayload);
+        createdUserId = newUser.user_id;
+
+        // Step 2: Create the Student payload
+        const studentPayload = {
+            user_id: createdUserId,
             sId: studentId,
             first_name: firstName,
             last_name: lastName,
@@ -44,96 +45,69 @@ exports.addStudent = async (req, res) => {
             entry_level: entryLevel,
             acad_yr: acadYr,
             status_study: statusStudy
-        });
+        };
+        await apiClient.post('/students', studentPayload);
+
         res.redirect('/admin/manageStudents');
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Error adding student');
+        console.error('Error adding student via API:', error);
+        // Attempt to clean up the created user if student creation failed
+        if (createdUserId) {
+            try {
+                await apiClient.del(`/users/${createdUserId}`);
+                console.log(`Cleaned up user ${createdUserId} after student creation failure.`);
+            } catch (cleanupError) {
+                console.error(`Failed to cleanup user ${createdUserId}:`, cleanupError);
+            }
+        }
+        res.status(error.status || 500).send(`Error adding student: ${error.message}`);
     }
 };
 
 // Render the updateStudent page with specific student details
 exports.renderUpdateStudent = async (req, res) => {
-    const { studentId } = req.query;
+    const { studentId } = req.query; // PK
     try {
-        const student = await Student.findOne({
-            where: { student_id: studentId },
-            include: [{ model: User, attributes: ['username', 'email'] }]
-        });
-        if (student) {
-            res.render('admin/manageStudents/updateStudent', { student });
-        } else {
-            res.status(404).send('Student not found');
-        }
+        const student = await apiClient.get(`/students/${studentId}`);
+        res.render('admin/manageStudents/updateStudent', { student });
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Error fetching student details');
+        console.error('Error fetching student details via API:', error);
+        if (error.status === 404) return res.status(404).send('Student not found');
+        res.status(error.status || 500).send(error.message || 'Error fetching student details');
     }
 };
 
-// Update an existing student
+// Update an existing student via API
 exports.updateStudent = async (req, res) => {
-    const { studentId, firstName, lastName, programmeId, entryLevel, acadYr, statusStudy } = req.body;
+    const { studentId, firstName, lastName, programmeId, entryLevel, acadYr, statusStudy } = req.body; // studentId is PK
     try {
-        const student = await Student.findOne({ where: { student_id: studentId } });
-        if (student) {
-            await student.update({
-                first_name: firstName || student.first_name,
-                last_name: lastName || student.last_name,
-                programme_id: programmeId || student.programme_id,
-                entry_level: entryLevel || student.entry_level,
-                acad_yr: acadYr || student.acad_yr,
-                status_study: statusStudy || student.status_study
-            });
-            res.redirect('/admin/manageStudents');
-        } else {
-            res.status(404).send('Student not found');
-        }
+        const payload = {
+            first_name: firstName,
+            last_name: lastName,
+            programme_id: programmeId,
+            entry_level: entryLevel,
+            acad_yr: acadYr,
+            status_study: statusStudy
+        };
+        // Remove undefined fields to avoid overwriting with null
+        Object.keys(payload).forEach(key => payload[key] === undefined && delete payload[key]);
+
+        await apiClient.put(`/students/${studentId}`, payload);
+        res.redirect('/admin/manageStudents');
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Error updating student');
+        console.error('Error updating student via API:', error);
+        res.status(error.status || 500).send(`Error updating student: ${error.message}`);
     }
 };
 
 // Delete a student
 exports.deleteStudent = async (req, res) => {
-    const { studentId } = req.body;
-    console.log(`Deleting student with ID: ${studentId}`);
+    const { studentId } = req.body; // PK
     try {
-        const student = await Student.findOne({ 
-            where: { student_id: studentId },
-            include: [{ model: User }]
-        });
-
-        if (student) {
-            // Get the user_id associated with this student
-            const userId = student.user_id;
-
-            // Delete notifications where student is the recipient
-            await Notification.destroy({ where: { student_id: studentId } });
-            
-            // Delete notifications sent by this student (using the user_id)
-            if (userId) {
-                await Notification.destroy({ where: { sender_id: userId } });
-            }
-            
-            // Delete related enrollments
-            await Enrollment.destroy({ where: { student_id: studentId } });
-            
-            // Delete the student
-            await student.destroy();
-
-            // Delete the user account if it exists
-            if (userId) {
-                await User.destroy({ where: { user_id: userId } });
-            }
-
-            res.redirect('/admin/manageStudents');
-        } else {
-            res.status(404).send('Student not found');
-        }
+        await apiClient.del(`/students/${studentId}`); // API handles deleting related user, notifications, enrollments
+        res.redirect('/admin/manageStudents');
     } catch (error) {
-        console.error('Error deleting student:', error);
-        res.status(500).send('Error deleting student');
+        console.error('Error deleting student via API:', error);
+        res.status(error.status || 500).send(`Error deleting student: ${error.message}`);
     }
 };

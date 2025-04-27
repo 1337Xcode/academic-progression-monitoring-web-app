@@ -3,9 +3,6 @@ const sequelize = require('../config/dbConfig');
 const Student = require('./Student');
 const Module = require('./Module');
 
-// https://sequelize.org/v3/
-// https://youtu.be/Crk_5Xy8GMA?si=mIHg3wDtvyUqRxXv
-
 const Enrollment = sequelize.define('Enrollment', {
     enrollment_id: {
         type: DataTypes.INTEGER,

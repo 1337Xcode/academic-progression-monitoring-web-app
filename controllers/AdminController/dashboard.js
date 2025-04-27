@@ -1,44 +1,54 @@
-const { Student, Module, User, Programme } = require('../../models'); // Removed Enrollment and messageService as they are no longer needed
+const apiClient = require('../../utils/apiClient');
+const { Programme, Student } = require('../../models');
+const messageService = require('../../services/messageService');
 
+// Show admin dashboard with counts of students, modules, and users
 exports.dashboard = async (req, res) => {
     try {
-        // Get stats used in the dashboard view
-        const totalStudents = await Student.count();
-        const totalModules = await Module.count();
-        const staffUsers = await User.count({ where: { role: 'ADMIN' } });
+        // Fetch counts via API calls
+        const [studentData, moduleData, userData] = await Promise.all([
+            apiClient.get('/students', { count: 'true' }),
+            apiClient.get('/modules', { count: 'true' }),
+            apiClient.get('/users', { count: 'true' })
+        ]);
 
-        // Additional stats
+        // Fetch Programme count directly until API endpoint exists
         const totalProgrammes = await Programme.count();
 
         res.render('admin/dashboard', {
-            totalStudents,
-            totalModules,
-            staffUsers,
-            totalProgrammes, // New stat
-            csrfToken: req.csrfToken() // Keep csrfToken if needed by partials or future forms
+            totalStudents: studentData.count,
+            totalModules: moduleData.count,
+            staffUsers: userData.count, // Assuming API counts all users or admins
+            totalProgrammes,
+            csrfToken: req.csrfToken()
         });
     } catch (err) {
         console.error('Error loading admin dashboard:', err);
-        res.status(500).send('Error loading dashboard');
+        res.status(err.status || 500).send(err.message || 'Error loading dashboard');
     }
 };
 
+
+// Handles sending a notification message from an admin.
 exports.sendNotification = async (req, res) => {
-    const { studentId, message } = req.body;
+    const { studentId, message } = req.body; // studentId is sId from form
     const senderId = req.session.userId;
-    if (!message) return res.redirect('/admin/dashboard');
+    if (!message) return res.redirect('/admin/manageMessages');
 
     try {
-        let validStudentId = null;
+        let validStudentDbId = null;
         if (studentId) {
-            // Look up student by sId (which is a string like '22-IFSY-0933003')
+            // Local lookup for sId -> student_id
             const student = await Student.findOne({ where: { sId: studentId } });
-            if (!student) return res.redirect('/admin/manageMessages');
-            // Use the numeric student_id for the database relation
-            validStudentId = student.student_id;
+            if (!student) {
+                 console.warn(`Admin tried to send message to non-existent student sId: ${studentId}`);
+                 // Consider adding flash message here
+                 return res.redirect('/admin/manageMessages');
+            }
+            validStudentDbId = student.student_id;
         }
-        await require('../../services/messageService')
-            .sendNotification({ senderId, studentId: validStudentId, message });
+        // Use the message service
+        await messageService.sendNotification({ senderId, studentId: validStudentDbId, message });
         res.redirect('/admin/manageMessages');
     } catch (err) {
         console.error('Error sending notification:', err);

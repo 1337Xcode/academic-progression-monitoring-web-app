@@ -63,7 +63,7 @@ app.use((req, res, next) => {
 const adminRoutes = require('./routes/admin/index');
 const studentRoutes = require('./routes/student');
 const authRoutes = require('./routes/auth');
-const apiRoutes = require('./routes/api'); // Add this line to import API routes
+const apiRoutes = require('./routes/api');
 
 // Home route
 app.get('/', (req, res) => {
@@ -91,7 +91,6 @@ app.use((err, req, res, next) => {
     if (err.code === 'EBADCSRFTOKEN') {
         // Handle CSRF token errors
         console.error('CSRF Error:', req.method, req.path);
-        // Use the general error template for CSRF errors
         return res.status(403).render('error', {
             title: 'Security Error: CSRF Token Validation Failed',
             message: 'Your form submission could not be processed due to a security check failure.'

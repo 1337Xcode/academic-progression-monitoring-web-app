@@ -1,0 +1,64 @@
+<%- include('../../partials/header', { title: 'Compose' }) %>
+<section class="section">
+    <div class="container">
+        <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
+            <h1 class="title is-4 mb-0">Compose</h1>
+            <a href="/admin/dashboard" class="button is-info">
+                <span class="icon"><i class="fas fa-home"></i></span>
+                <span>Back to Dashboard</span>
+            </a>
+        </div>
+        <div class="buttons mb-4">
+            <a class="button is-light" href="/admin/manageMessages/inbox">Inbox</a>
+            <a class="button is-light" href="/admin/manageMessages/sent">Sent</a>
+            <a class="button is-info" href="/admin/manageMessages/compose">Compose</a>
+        </div>
+        <div class="columns">
+            <div class="column">
+                <div class="box">
+                    <p class="title is-6">Announcement to All Students</p>
+                    <form action="/admin/notifications/send" method="POST">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <div class="field">
+                            <label class="label">Announcement</label>
+                            <div class="control">
+                                <textarea class="textarea" name="message" required maxlength="65535" placeholder="Type your announcement here"></textarea>
+                            </div>
+                        </div>
+                        <div class="field mt-4">
+                            <div class="control">
+                                <button class="button is-info is-fullwidth" type="submit">Send Announcement</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="column">
+                <div class="box">
+                    <p class="title is-6">Message to Specific Student</p>
+                    <form action="/admin/notifications/send" method="POST">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <div class="field">
+                            <label class="label">Student ID</label>
+                            <div class="control">
+                                <input class="input" type="text" name="studentId" placeholder="e.g. 22-IFSY-0933003" required>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Message</label>
+                            <div class="control">
+                                <textarea class="textarea" name="message" required maxlength="65535" placeholder="Type your message here"></textarea>
+                            </div>
+                        </div>
+                        <div class="field mt-4">
+                            <div class="control">
+                                <button class="button is-primary is-fullwidth" type="submit">Send Message</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<%- include('../../partials/footer') %>

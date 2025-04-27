@@ -3,8 +3,11 @@
 <%- include('../../partials/header', { title: 'Manage Students' }) %>
 <section class="section">
     <div class="container">
-        <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
-            <h1 class="title">Manage Students</h1>
+        <div class="is-flex is-justify-content-space-between is-align-items-center">
+            <h1 class="title mb-4">Manage Students</h1>
+            <div class="buttons">
+                <a class="button is-primary" href="/admin/manageStudents/addStudent">Add Student</a>
+            </div>
         </div>
         <% const page = 'manageStudents'; %>
         <%- include('../../partials/navbar', { page: page }) %>
@@ -42,9 +45,6 @@
             </tbody>
         </table>
         <%- include('../../partials/page', { totalPages, currentPage }) %>
-        <div class="buttons">
-            <a class="button is-primary" href="/admin/manageStudents/addStudent">Add Student</a>
-        </div>
     </div>
 </section>
 <%- include('../../partials/footer') %>

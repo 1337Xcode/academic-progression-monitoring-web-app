@@ -1,0 +1,71 @@
+<%- include('../../partials/header', { title: 'Manage Progression' }) %>
+<section class="section">
+    <div class="container">
+        <div class="is-flex is-justify-content-space-between is-align-items-center">
+            <h1 class="title mb-4">Manage Progression</h1>
+            <div class="buttons">
+                 <a href="/admin/manageProgression/applyMitigation" class="button is-warning">
+                    <span class="icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </span>
+                    <span>Apply Mitigation</span>
+                </a>
+                <a href="/admin/manageProgression/edit" class="button is-info">
+                    <span class="icon">
+                        <i class="fas fa-edit"></i>
+                    </span>
+                    <span>Edit Progression Rules</span>
+                </a>
+            </div>
+        </div>
+        <% const page = 'manageProgression'; %>
+        <%- include('../../partials/navbar', { page: page }) %>
+
+        <!-- Display success/error messages -->
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="notification is-success is-light"><%= success %></div>
+        <% } %>
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="notification is-danger is-light"><%= error %></div>
+        <% } %>
+
+        <table class="table is-fullwidth is-striped is-hoverable">
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Name</th>
+                    <th>Programme</th>
+                    <th>Overall Progression Decision</th>
+                    <th>Actions</th> <!-- New Header -->
+                </tr>
+            </thead>
+            <tbody>
+                <% if (students && students.length > 0) { %>
+                    <% students.forEach(student => { %>
+                        <tr>
+                            <td><%= student.sId %></td>
+                            <td><%= student.name %></td>
+                            <td><%= student.programmeCode %></td>
+                            <td><%= student.decision %></td>
+                            <td>
+                                <a href="/admin/manageProgression/view/<%= student.sId %>" class="button is-small is-info is-outlined">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-eye"></i>
+                                    </span>
+                                    <span>View Details</span>
+                                </a>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="5">No student progression data found for this page.</td> <!-- Updated colspan -->
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+
+        <%- include('../../partials/page', { totalPages, currentPage, baseUrl: '/admin/manageProgression' }) %>
+    </div>
+</section>
+<%- include('../../partials/footer') %>

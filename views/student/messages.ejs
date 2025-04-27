@@ -12,68 +12,80 @@
                 <span>Back to Dashboard</span>
             </a>
         </div>
+
+        <!-- Announcements -->
         <div class="card mb-5">
             <header class="card-header">
-                <p class="card-header-title">Messages from Administration</p>
+                <p class="card-header-title">
+                    <i class="fas fa-bullhorn mr-2"></i> Latest Announcements
+                </p>
             </header>
             <div class="card-content">
-                <% const adminMessages = notifications.filter(msg => msg.Sender && msg.Sender.role === 'ADMIN'); %>
-                <% if (adminMessages.length === 0) { %>
-                    <p class="has-text-centered">No messages from administrators.</p>
+                <%
+                    // Get the latest 5 admin announcements to all students
+                    const announcements = notifications
+                        .filter(msg => msg.Sender && msg.Sender.role === 'ADMIN' && msg.student_id === null)
+                        .slice(0, 5);
+                %>
+                <% if (announcements.length === 0) { %>
+                    <p class="has-text-centered">No announcements.</p>
                 <% } else { %>
-                    <% adminMessages.forEach(msg => { %>
-                        <div class="message is-info mb-4">
-                            <div class="message-header">
-                                <p>Admin Message <%= msg.student_id ? '(Private)' : '(Everyone)' %></p>
-                                <small><%= msg.sent_at ? msg.sent_at.toLocaleString() : '' %></small>
-                            </div>
-                            <div class="message-body">
-                                <%= msg.message %>
-                            </div>
+                    <% announcements.forEach(ann => { %>
+                        <div class="notification is-info mb-2">
+                            <div><%= ann.message %></div>
+                            <small><%= ann.sent_at ? new Date(ann.sent_at).toLocaleString() : '' %></small>
                         </div>
                     <% }) %>
                 <% } %>
             </div>
         </div>
-        <div class="card mb-5">
-            <header class="card-header">
-                <p class="card-header-title">Your Sent Messages</p>
-            </header>
-            <div class="card-content">
-                <% const sentMessages = notifications.filter(msg => msg.sender_id === studentUserId); %>
-                <% if (sentMessages.length === 0) { %>
-                    <p class="has-text-centered">You have not sent any messages.</p>
-                <% } else { %>
-                    <% sentMessages.forEach(msg => { %>
-                        <div class="message is-primary mb-4">
-                            <div class="message-header">
-                                <p>Your Message</p>
-                                <small><%= msg.sent_at ? msg.sent_at.toLocaleString() : '' %></small>
-                            </div>
-                            <div class="message-body">
-                                <%= msg.message %>
-                            </div>
-                        </div>
-                    <% }) %>
-                <% } %>
-            </div>
-        </div>
+
+        <!-- Chat Messages & Contact Advisor -->
         <div class="card">
             <header class="card-header">
-                <p class="card-header-title">Contact Advisor of Studies</p>
+                <p class="card-header-title">Chat with Advisor</p>
             </header>
             <div class="card-content">
-                <form action="/student/contact-advisor" method="POST">
+                <div style="max-height:300px;overflow-y:auto;padding-bottom:1em;">
+                    <%
+                        // Get all admin (private) and student messages, sorted oldest to newest
+                        const adminMsgs = notifications.filter(msg => msg.Sender && msg.Sender.role === 'ADMIN' && msg.student_id !== null);
+                        const myMsgs = notifications.filter(msg => msg.sender_id === studentUserId);
+                        const allMsgs = [...adminMsgs, ...myMsgs].sort((a, b) => new Date(a.sent_at) - new Date(b.sent_at));
+                    %>
+                    <% if (allMsgs.length === 0) { %>
+                        <p class="has-text-centered">No messages yet.</p>
+                    <% } else { %>
+                        <% allMsgs.forEach(msg => { %>
+                            <% if (msg.sender_id === studentUserId) { %>
+                                <div style="display:flex;justify-content:flex-start;margin-bottom:0.5em;">
+                                    <div style="background:#e3f2fd;padding:10px 15px;border-radius:15px 15px 15px 0;max-width:70%;">
+                                        <strong>You:</strong> <%= msg.message %>
+                                        <div style="font-size:0.8em;color:#888;"><%= msg.sent_at ? new Date(msg.sent_at).toLocaleString() : '' %></div>
+                                    </div>
+                                </div>
+                            <% } else { %>
+                                <div style="display:flex;justify-content:flex-end;margin-bottom:0.5em;">
+                                    <div style="background:#d1ecf1;padding:10px 15px;border-radius:15px 15px 0 15px;max-width:70%;text-align:right;">
+                                        <strong>Advisor:</strong> <%= msg.message %>
+                                        <div style="font-size:0.8em;color:#888;"><%= msg.sent_at ? new Date(msg.sent_at).toLocaleString() : '' %></div>
+                                    </div>
+                                </div>
+                            <% } %>
+                        <% }) %>
+                    <% } %>
+                </div>
+                <form action="/student/contact-advisor" method="POST" class="mt-5">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <div class="field">
-                        <label class="label">Your Message</label>
+                        <label class="label">Send a Message</label>
                         <div class="control">
-                            <textarea class="textarea" name="message" required maxlength="65535" placeholder="Type your message to the advisor here..."></textarea>
+                            <textarea class="textarea" name="message" required maxlength="65535" placeholder="Type your message..."></textarea>
                         </div>
                     </div>
                     <div class="field mt-4">
                         <div class="control">
-                            <button class="button is-primary is-fullwidth" type="submit">Send Message</button>
+                            <button class="button is-primary is-fullwidth" type="submit">Send</button>
                         </div>
                     </div>
                 </form>

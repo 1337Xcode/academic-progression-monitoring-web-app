@@ -1,0 +1,95 @@
+<%- include('../../partials/header', { title: 'Inbox' }) %>
+<section class="section">
+    <div class="container">
+        <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
+            <h1 class="title is-4 mb-0">Inbox</h1>
+            <a href="/admin/dashboard" class="button is-info">
+                <span class="icon"><i class="fas fa-home"></i></span>
+                <span>Back to Dashboard</span>
+            </a>
+        </div>
+        <div class="buttons mb-4">
+            <a class="button is-info" href="/admin/manageMessages/inbox">Inbox</a>
+            <a class="button is-light" href="/admin/manageMessages/sent">Sent</a>
+            <a class="button is-light" href="/admin/manageMessages/compose">Compose</a>
+        </div>
+        <div class="box">
+            <%
+                const start = ((currentPage || 1) - 1) * 10;
+                const end = start + 10;
+                const studentMessages = notifications.filter(m => m.Sender.role === 'STUDENT').slice(start, end);
+            %>
+            <% if (!studentMessages.length) { %>
+                <p>No messages from students.</p>
+            <% } else { %>
+                <table class="table is-fullwidth is-striped">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Message</th>
+                            <th>Date</th>
+                            <th>Reply</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <% studentMessages.forEach(msg => { %>
+                        <tr>
+                            <td>
+                                <%= (msg.Sender.Student && msg.Sender.Student.first_name) ? msg.Sender.Student.first_name : 'Unknown' %>
+                                <% if (msg.Sender.Student && msg.Sender.Student.sId) { %>
+                                    (<%= msg.Sender.Student.sId %>)
+                                <% } %>
+                            </td>
+                            <td><%= msg.message %></td>
+                            <td><%= msg.sent_at && msg.sent_at.toLocaleString ? msg.sent_at.toLocaleString() : '' %></td>
+                            <td>
+                                <button class="button is-small is-primary"
+                                    onclick="openReplyModal('<%= (msg.Sender.Student && msg.Sender.Student.sId) ? msg.Sender.Student.sId : '' %>')">
+                                    Reply
+                                </button>
+                            </td>
+                        </tr>
+                    <% }) %>
+                    </tbody>
+                </table>
+                <%- include('../../partials/page', { totalPages, currentPage }) %>
+            <% } %>
+        </div>
+        <!-- Reply Modal -->
+        <div class="modal" id="replyModal">
+            <div class="modal-background" onclick="closeReplyModal()"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Reply to Student</p>
+                    <button class="delete" aria-label="close" onclick="closeReplyModal()"></button>
+                </header>
+                <form action="/admin/notifications/send" method="POST">
+                    <section class="modal-card-body">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <input type="hidden" name="studentId" id="replyStudentId">
+                        <div class="field">
+                            <label class="label">Message</label>
+                            <div class="control">
+                                <textarea class="textarea" name="message" required maxlength="65535" placeholder="Type your reply here"></textarea>
+                            </div>
+                        </div>
+                    </section>
+                    <footer class="modal-card-foot">
+                        <button class="button is-primary" type="submit">Send Reply</button>
+                        <button class="button" type="button" onclick="closeReplyModal()">Cancel</button>
+                    </footer>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+<%- include('../../partials/footer') %>
+<script>
+    function openReplyModal(studentId) {
+        document.getElementById('replyStudentId').value = studentId;
+        document.getElementById('replyModal').classList.add('is-active');
+    }
+    function closeReplyModal() {
+        document.getElementById('replyModal').classList.remove('is-active');
+    }
+</script>

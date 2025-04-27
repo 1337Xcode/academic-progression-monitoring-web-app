@@ -1,0 +1,84 @@
+<%- include('../../partials/header', { title: 'Apply Mitigation' }) %>
+<section class="section">
+    <div class="container">
+        <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
+            <h1 class="title">Apply Mitigation</h1>
+            <div class="buttons">
+                <a href="/admin/manageMitigations" class="button is-info">
+                    <span class="icon">
+                        <i class="fas fa-cog"></i>
+                    </span>
+                    <span>Manage Mitigations</span>
+                </a>
+                <a href="/admin/manageProgression" class="button is-link">
+                    <span class="icon">
+                        <i class="fas fa-arrow-left"></i>
+                    </span>
+                    <span>Back to Manage Progression</span>
+                </a>
+            </div>
+        </div>
+        <% const page = 'manageProgression'; %>
+        <%- include('../../partials/navbar', { page: page }) %>
+
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="notification is-success is-light"><%= success %></div>
+        <% } %>
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="notification is-danger is-light"><%= error %></div>
+        <% } %>
+
+        <div class="box">
+            <form action="/admin/mitigation/apply" method="post">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                <div class="field">
+                    <label class="label" for="sId">Student ID</label>
+                    <div class="control">
+                        <% if (student) { %>
+                            <input class="input" type="text" id="sId" name="sId" value="<%= student.sId %>" readonly required>
+                            <p class="help">Applying mitigation for <%= student.first_name %> <%= student.last_name %></p>
+                        <% } else { %>
+                            <!-- If no specific student, allow selection or input -->
+                            <input class="input" type="text" id="sId" name="sId" placeholder="Enter Student ID (e.g., 22-IFSY-0933003)" required>
+                            <!-- Alternatively, implement a dropdown with student search -->
+                        <% } %>
+                    </div>
+                     <% if (typeof errors !== 'undefined' && errors.sId) { %>
+                        <p class="help is-danger"><%= errors.sId %></p>
+                    <% } %>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="mitigation_type">Mitigation Type</label>
+                    <div class="control">
+                        <div class="select is-fullwidth">
+                            <select id="mitigation_type" name="mitigation_type" required>
+                                <option value="" disabled selected>Select type...</option>
+                                <option value="MANUAL_DECISION">Manual Progression Decision</option>
+                                <option value="WAIVE_CORE_MODULE">Waive Core Module Requirement</option>
+                                <option value="IGNORE_MODULE_FAILURE">Ignore Specific Module Failure</option>
+                            </select>
+                        </div>
+                    </div>
+                     <% if (typeof errors !== 'undefined' && errors.mitigation_type) { %>
+                        <p class="help is-danger"><%= errors.mitigation_type %></p>
+                    <% } %>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="notes">Notes (Optional)</label>
+                    <div class="control">
+                        <textarea class="textarea" id="notes" name="notes" placeholder="Explain the reason for this mitigation..."></textarea>
+                    </div>
+                </div>
+
+                <div class="control">
+                    <button class="button is-primary" type="submit">Apply Mitigation</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</section>
+<%- include('../../partials/footer') %>

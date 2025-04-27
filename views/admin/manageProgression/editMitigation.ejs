@@ -1,0 +1,69 @@
+<%- include('../../partials/header', { title: 'Edit Mitigation' }) %>
+<section class="section">
+    <div class="container">
+        <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
+            <h1 class="title">Edit Mitigation Record</h1>
+            <a href="/admin/manageMitigations?page=<%= page %>" class="button is-link"> <!-- Link back to the correct page -->
+                <span class="icon">
+                    <i class="fas fa-arrow-left"></i>
+                </span>
+                <span>Back to Manage Mitigations</span>
+            </a>
+        </div>
+        <% const navPage = 'manageProgression'; %>
+        <%- include('../../partials/navbar', { page: navPage }) %>
+
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="notification is-danger is-light"><%= error %></div>
+        <% } %>
+
+        <div class="box">
+            <form action="/admin/mitigation/update?page=<%= page %>" method="post">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" name="mitigation_id" value="<%= mitigation.mitigation_id %>">
+
+                <div class="field">
+                    <label class="label">Student</label>
+                    <div class="control">
+                        <input class="input" type="text" value="<%= mitigation.Student.sId %> - <%= mitigation.Student.first_name %> <%= mitigation.Student.last_name %>" readonly>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="mitigation_type">Mitigation Type</label>
+                    <div class="control">
+                        <div class="select is-fullwidth">
+                            <select id="mitigation_type" name="mitigation_type" required>
+                                <option value="MANUAL_DECISION" <%= mitigation.mitigation_type === 'MANUAL_DECISION' ? 'selected' : '' %>>Manual Progression Decision</option>
+                                <option value="WAIVE_CORE_MODULE" <%= mitigation.mitigation_type === 'WAIVE_CORE_MODULE' ? 'selected' : '' %>>Waive Core Module Requirement</option>
+                                <option value="IGNORE_MODULE_FAILURE" <%= mitigation.mitigation_type === 'IGNORE_MODULE_FAILURE' ? 'selected' : '' %>>Ignore Specific Module Failure</option>
+                            </select>
+                        </div>
+                    </div>
+                     <% if (typeof errors !== 'undefined' && errors.mitigation_type) { %>
+                        <p class="help is-danger"><%= errors.mitigation_type %></p>
+                    <% } %>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="notes">Notes (Optional)</label>
+                    <div class="control">
+                        <textarea class="textarea" id="notes" name="notes" placeholder="Explain the reason for this mitigation..."><%= mitigation.notes || '' %></textarea>
+                    </div>
+                </div>
+
+                 <div class="field">
+                    <label class="label">Applied At</label>
+                    <div class="control">
+                        <input class="input" type="text" value="<%= new Date(mitigation.applied_at).toLocaleString() %>" readonly>
+                    </div>
+                </div>
+
+                <div class="control">
+                    <button class="button is-primary" type="submit">Update Mitigation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+<%- include('../../partials/footer') %>

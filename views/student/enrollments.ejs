@@ -23,10 +23,10 @@
                 <tbody>
                     <% enrollments.forEach(function(enrollment) { %>
                         <tr>
-                            <td><%= enrollment.Module.subj_code %><%= enrollment.Module.subj_catalog %></td>
-                            <td><%= enrollment.Module.module_title %></td>
-                            <td><%= enrollment.Module.pathway_code %></td>
-                            <td><%= enrollment.Module.credit_value %></td>
+                            <td><%= enrollment.Module ? `${enrollment.Module.subj_code || ''}${enrollment.Module.subj_catalog || ''}` : 'N/A' %></td>
+                            <td><%= enrollment.Module && enrollment.Module.module_title ? enrollment.Module.module_title : 'N/A' %></td>
+                            <td><%= enrollment.Module && enrollment.Module.pathway_code ? enrollment.Module.pathway_code : 'N/A' %></td>
+                            <td><%= enrollment.Module && enrollment.Module.credit_value != null ? enrollment.Module.credit_value : 'N/A' %></td>
                         </tr>
                     <% }) %>
                 </tbody>

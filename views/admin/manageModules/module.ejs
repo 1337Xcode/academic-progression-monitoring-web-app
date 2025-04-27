@@ -1,8 +1,11 @@
 <%- include('../../partials/header', { title: 'Manage Modules' }) %>
 <section class="section">
     <div class="container">
-        <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
-            <h1 class="title">Manage Modules</h1>
+        <div class="is-flex is-justify-content-space-between is-align-items-center">
+            <h1 class="title mb-4">Manage Modules</h1>
+            <div class="buttons">
+                <a class="button is-primary" href="/admin/manageModules/addModule">Add Module</a>
+            </div>
         </div>
         <% const page = 'manageModules'; %>
         <%- include('../../partials/navbar', { page: page }) %>
@@ -38,9 +41,6 @@
             </tbody>
         </table>
         <%- include('../../partials/page', { totalPages, currentPage }) %>
-        <div class="buttons">
-            <a class="button is-primary" href="/admin/manageModules/addModule">Add Module</a>
-        </div>
     </div>
 </section>
 <%- include('../../partials/footer') %>

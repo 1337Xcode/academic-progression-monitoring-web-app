@@ -3,7 +3,6 @@ const router = express.Router();
 const multer = require('multer');
 const upload = multer({ dest: 'public/uploads/' });
 const { isStudent } = require('../../middlewares/authMiddleware');
-
 const ProfileController = require('../../controllers/StudentController/profile');
 const ProgressionController = require('../../controllers/StudentController/progression');
 const MessagesController = require('../../controllers/StudentController/messages');

@@ -18,4 +18,4 @@ function isStudent(req, res, next) {
     }
 }
 
-module.exports = { isAdmin, isStudent }; // Export the middleware functions
+module.exports = { isAdmin, isStudent };

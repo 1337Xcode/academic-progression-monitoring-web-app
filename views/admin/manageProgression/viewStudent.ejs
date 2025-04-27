@@ -1,0 +1,160 @@
+<%- include('../../partials/header', { title: `Student Progression - ${student.sId}` }) %>
+<section class="section">
+    <div class="container">
+        <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
+            <h1 class="title">Student Progression Report</h1>
+            <div> <!-- Wrap buttons -->
+                <a href="/admin/manageProgression/applyMitigation/<%= student.sId %>" class="button is-warning mr-2">
+                    <span class="icon">
+                        <i class="fas fa-shield-alt"></i> <!-- Example icon -->
+                    </span>
+                    <span>Apply Mitigation</span>
+                </a>
+                <a href="/admin/manageProgression" class="button is-link">
+                    <span class="icon">
+                        <i class="fas fa-arrow-left"></i>
+                    </span>
+                    <span>Back to Manage Progression</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Display success/error messages if redirected here -->
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="notification is-success is-light"><%= success %></div>
+        <% } %>
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="notification is-danger is-light"><%= error %></div>
+        <% } %>
+
+        <!-- Student Details -->
+        <div class="box mb-5">
+            <h2 class="title is-4">Student Details</h2>
+            <p><strong>Student ID:</strong> <%= student.sId %></p>
+            <p><strong>Name:</strong> <%= student.first_name %> <%= student.last_name %></p>
+            <!-- Add Programme Name if available -->
+            <% if (student.Programme) { %>
+                <p><strong>Programme:</strong> <%= student.Programme.programme_name %> (<%= student.Programme.programme_code %>)</p>
+            <% } %>
+        </div>
+
+        <!-- Overall Progression -->
+        <div class="box has-background-light mb-5">
+            <p class="title is-4 has-text-centered">Overall Progression Decision</p>
+            <p class="subtitle is-5 has-text-centered">
+                <%= progressionData.decision %>
+            </p>
+        </div>
+
+        <!-- Level 1 Details -->
+        <div class="card mb-5">
+            <header class="card-header">
+                <p class="card-header-title">Level 1 Progression Status</p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    <% const level1Stats = progressionData.level1Stats; %>
+                    <% if (level1Stats.enrollments && level1Stats.enrollments.length > 0) { %>
+                        <p><strong>Decision:</strong> <%= level1Stats.levelDecision || 'No decision available' %></p>
+                        <p><strong>Credits Earned:</strong> <%= level1Stats.totalCredits %> / <%= level1Stats.requiredCredits %></p>
+                        <p><strong>Average Grade:</strong> <%= level1Stats.averagePercentage != null ? level1Stats.averagePercentage.toFixed(2) + '%' : 'N/A' %></p>
+                        <p><strong>Modules Passed:</strong> <%= level1Stats.modulesPassed %></p>
+                        <p><strong>Modules Requiring Resit/Retry:</strong> <%= level1Stats.modulesRequiringResit || 0 %></p>
+                        <h3 class="subtitle is-6 mt-4">Level 1 Modules</h3>
+                        <table class="table is-fullwidth is-striped is-narrow is-hoverable">
+                            <thead>
+                                <tr>
+                                    <th>Module</th>
+                                    <th>First Grade</th>
+                                    <th>Result</th>
+                                    <th>Resit Grade</th>
+                                    <th>Resit Result</th>
+                                    <th>Credits</th>
+                                    <th>Final Result</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% level1Stats.enrollments.forEach(e => { %>
+                                    <% const isPass = e.calculatedFinalResult === 'Pass' || e.calculatedFinalResult === 'Pass Capped'; %>
+                                    <% const isFail = e.calculatedFinalResult === 'Fail'; %>
+                                    <% const isExcused = e.calculatedFinalResult === 'Excused'; %>
+                                    <% const isAbsent = e.calculatedFinalResult === 'Absent'; %>
+                                    <% const resultClass = isPass ? 'has-text-success' : (isFail ? 'has-text-danger' : (isExcused ? 'has-text-info' : (isAbsent ? 'has-text-grey' : ''))); %>
+                                    <tr>
+                                        <td><%= e.Module.module_title %> (<%= e.Module.subj_code %> <%= e.Module.subj_catalog %>)</td>
+                                        <td><%= e.first_grade != null ? parseFloat(e.first_grade).toFixed(2) + '%' : 'N/A' %></td>
+                                        <td><%= e.grade_result || 'N/A' %></td>
+                                        <td><%= e.resit_grade != null ? parseFloat(e.resit_grade).toFixed(2) + '%' : 'N/A' %></td>
+                                        <td><%= e.resit_result || 'N/A' %></td>
+                                        <td><%= e.Module.credit_value %></td>
+                                        <td class="<%= resultClass %>"><%= e.calculatedFinalResult || 'Pending' %></td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    <% } else { %>
+                        <p>No Level 1 modules enrolled yet.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Level 2 Details -->
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">Level 2 Progression Status</p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                     <% const level2Stats = progressionData.level2Stats; %>
+                    <% if (level2Stats.enrollments && level2Stats.enrollments.length > 0) { %>
+                        <p><strong>Decision:</strong> <%= level2Stats.levelDecision || 'No decision available' %></p>
+                        <p><strong>Credits Earned:</strong> <%= level2Stats.totalCredits %> / <%= level2Stats.requiredCredits %></p>
+                        <p><strong>Average Grade:</strong> <%= level2Stats.averagePercentage != null ? level2Stats.averagePercentage.toFixed(2) + '%' : 'N/A' %></p>
+                        <p><strong>Modules Passed:</strong> <%= level2Stats.modulesPassed %></p>
+                        <p><strong>Modules Requiring Resit/Retry:</strong> <%= level2Stats.modulesRequiringResit || 0 %></p>
+                        <p><strong>Core Module Status:</strong> <span class="<%= level2Stats.allCorePassed ? 'has-text-success' : 'has-text-danger' %>"><%= level2Stats.allCorePassed ? 'Pass' : 'Fail' %></span></p>
+                        <% if (!level2Stats.allCorePassed && level2Stats.failedCore && level2Stats.failedCore.length > 0) { %>
+                            <p><strong>Failed Core Modules:</strong> <%= level2Stats.failedCore.join(', ') %></p>
+                        <% } %>
+                        <h3 class="subtitle is-6 mt-4">Level 2 Modules</h3>
+                        <table class="table is-fullwidth is-striped is-narrow is-hoverable">
+                             <thead>
+                                <tr>
+                                    <th>Module</th>
+                                    <th>First Grade</th>
+                                    <th>Result</th>
+                                    <th>Resit Grade</th>
+                                    <th>Resit Result</th>
+                                    <th>Credits</th>
+                                    <th>Final Result</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% level2Stats.enrollments.forEach(e => { %>
+                                    <% const isPass = e.calculatedFinalResult === 'Pass' || e.calculatedFinalResult === 'Pass Capped'; %>
+                                    <% const isFail = e.calculatedFinalResult === 'Fail'; %>
+                                    <% const isExcused = e.calculatedFinalResult === 'Excused'; %>
+                                    <% const isAbsent = e.calculatedFinalResult === 'Absent'; %>
+                                    <% const resultClass = isPass ? 'has-text-success' : (isFail ? 'has-text-danger' : (isExcused ? 'has-text-info' : (isAbsent ? 'has-text-grey' : ''))); %>
+                                    <tr>
+                                        <td><%= e.Module.module_title %> (<%= e.Module.subj_code %> <%= e.Module.subj_catalog %>)</td>
+                                        <td><%= e.first_grade != null ? parseFloat(e.first_grade).toFixed(2) + '%' : 'N/A' %></td>
+                                        <td><%= e.grade_result || 'N/A' %></td>
+                                        <td><%= e.resit_grade != null ? parseFloat(e.resit_grade).toFixed(2) + '%' : 'N/A' %></td>
+                                        <td><%= e.resit_result || 'N/A' %></td>
+                                        <td><%= e.Module.credit_value %></td>
+                                        <td class="<%= resultClass %>"><%= e.calculatedFinalResult || 'Pending' %></td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    <% } else { %>
+                        <p>No Level 2 modules enrolled yet.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<%- include('../../partials/footer') %>

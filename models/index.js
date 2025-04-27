@@ -4,6 +4,8 @@ const Module = require('./Module');
 const Programme = require('./Programme');
 const Enrollment = require('./Enrollment');
 const Notification = require('./Notification');
+const ProgressionRule = require('./ProgressionRule');
+const StudentMitigation = require('./StudentMitigation'); // Import the new model
 
 // Define associations
 User.hasOne(Student, { foreignKey: 'user_id' });
@@ -26,6 +28,10 @@ Notification.belongsTo(User, { foreignKey: 'sender_id', as: 'Sender' });
 // Add association between Notification and Student
 Notification.belongsTo(Student, { foreignKey: 'student_id', as: 'Recipient' });
 
+// Add association between Student and StudentMitigation
+Student.hasMany(StudentMitigation, { foreignKey: 'student_id', as: 'Mitigations' });
+StudentMitigation.belongsTo(Student, { foreignKey: 'student_id' });
+
 // Export models
 module.exports = {
     User,
@@ -33,5 +39,7 @@ module.exports = {
     Module,
     Programme,
     Enrollment,
-    Notification
+    Notification,
+    ProgressionRule,
+    StudentMitigation // Add the new model to exports
 };
