@@ -67,13 +67,10 @@ function calcLevelStats(enrollments, rules, compulsoryModuleCodes, options = {})
         }
 
         let gradeForCheckAndAvg = actualGrade;
-        if (resitResult === 'pass capped' && !ignoreCap) { 
-            const cappingThreshold = defaultPassMark;
-            if (gradeForCheckAndAvg != null && gradeForCheckAndAvg > cappingThreshold) {
-                gradeForCheckAndAvg = cappingThreshold;
-            }
+        // Always cap to 40 if pass capped and not ignoring cap
+        if (!ignoreCap && (resitResult === 'pass capped' || (firstResult === 'pass capped' && !resitResult))) {
+            gradeForCheckAndAvg = defaultPassMark;
         }
-        let isPass = false;
         if (finalResultIsExcused) {
             modulesExcused++;
             modulesRequiringResit++;
@@ -86,10 +83,13 @@ function calcLevelStats(enrollments, rules, compulsoryModuleCodes, options = {})
             if (coreCatalogs.includes(m.subj_catalog) && ignoreCore) e.calculatedFinalResult = 'Waived';
             else e.calculatedFinalResult = 'Absent';
         } else if (gradeForCheckAndAvg != null && gradeForCheckAndAvg >= relevantPassMark) {
-            isPass = true;
             passedCredits += m.credit_value;
             modulesPassed++;
-            e.calculatedFinalResult = (resitResult === 'pass capped' && !ignoreCap) ? 'Pass Capped' : 'Pass';
+            if ((!ignoreCap && (resitResult === 'pass capped' || (firstResult === 'pass capped' && !resitResult)))) {
+                e.calculatedFinalResult = 'Pass Capped';
+            } else {
+                e.calculatedFinalResult = 'Pass';
+            }
         } else if (actualGrade != null) {
             modulesFailed++;
             modulesRequiringResit++;
