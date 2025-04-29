@@ -77,7 +77,7 @@ Follow these steps to set up and run the application.
    - Install the [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension for Visual Studio Code.
 
 2. **Use the `.rest` File**:
-   - A `.rest` file is included in the project to test the API endpoints.
+   - A `.rest` file is included in the project's api folder to test the API endpoints.
    - Open the `.rest` file in Visual Studio Code.
    - Use the REST Client extension to send requests to the API.
 
