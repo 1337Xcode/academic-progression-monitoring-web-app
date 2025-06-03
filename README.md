@@ -91,4 +91,7 @@ Follow these steps to set up and run the application.
 
 That's it! You should now have the application up and running.
 
-~ Made with ❤️ by [1337XCode](https://github.com/1337Xcode) ~
+---
+<div align="center">
+Made with ❤️ by [1337XCode](https://github.com/1337Xcode)
+</div>
